@@ -23,6 +23,12 @@ export interface NewAdminUser {
   email: string
 }
 
+export interface AdminUserUpdate {
+  first_name: string
+  last_name: string
+  status: string
+}
+
 export async function getAdminUsers(
   limit: number,
   offset: number,
@@ -89,6 +95,44 @@ export async function createAdminUser(
   if (!result.success)
     throw new Error(
       'The Identity Service returned an unexpected new admin user response.',
+    )
+  return result.data
+}
+
+export async function updateAdminUser(
+  userId: string,
+  user: AdminUserUpdate,
+): Promise<AdminUser> {
+  const token = await getAccessToken()
+  const response = await fetch(
+    `${identityApiUrl}/api/v1/admin/users/${encodeURIComponent(userId)}`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(user),
+      cache: 'no-store',
+      credentials: 'omit',
+      redirect: 'error',
+    },
+  )
+  if (response.status === 401) {
+    await expireSession()
+    throw new Error('Your session has ended. Sign in again to continue.')
+  }
+  if (response.status === 403)
+    throw new Error('You do not have permission to update admin users.')
+  if (response.status === 404)
+    throw new Error('This admin user no longer exists. Refresh the list.')
+  if (!response.ok)
+    throw new Error('Admin user could not be updated. Please try again.')
+  const result = adminUserSchema.safeParse(await response.json())
+  if (!result.success)
+    throw new Error(
+      'The Identity Service returned an unexpected updated admin user response.',
     )
   return result.data
 }

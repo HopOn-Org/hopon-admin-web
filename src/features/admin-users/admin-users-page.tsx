@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ChevronLeft,
   ChevronRight,
+  Pencil,
   Plus,
   RefreshCw,
   ShieldCheck,
@@ -21,14 +22,15 @@ import {
 import { Button } from '../../components/ui/button'
 import { Dialog } from '../../components/ui/dialog'
 import { useUI } from '../../lib/store'
-import { createAdminUser, getAdminUsers } from './api'
-import type { NewAdminUser } from './api'
+import { createAdminUser, getAdminUsers, updateAdminUser } from './api'
+import type { AdminUser, AdminUserUpdate, NewAdminUser } from './api'
 
 export function AdminUsersPage() {
   const { user } = useAuthentication()
   const queryClient = useQueryClient()
   const notify = useUI((state) => state.notify)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null)
   const [limit, setLimit] = useState(50)
   const [offset, setOffset] = useState(0)
   const [search, setSearch] = useState('')
@@ -37,6 +39,22 @@ export function AdminUsersPage() {
     onSuccess: async () => {
       setCreateDialogOpen(false)
       notify('Admin user created')
+      await queryClient.invalidateQueries({
+        queryKey: ['admin-users', user?.subject],
+      })
+    },
+  })
+  const updateMutation = useMutation({
+    mutationFn: ({
+      userId,
+      updates,
+    }: {
+      userId: string
+      updates: AdminUserUpdate
+    }) => updateAdminUser(userId, updates),
+    onSuccess: async () => {
+      setEditingUser(null)
+      notify('Admin user updated')
       await queryClient.invalidateQueries({
         queryKey: ['admin-users', user?.subject],
       })
@@ -165,6 +183,7 @@ export function AdminUsersPage() {
                     <th>Email</th>
                     <th>Status</th>
                     <th>Keycloak user ID</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -201,6 +220,20 @@ export function AdminUsersPage() {
                         </td>
                         <td className="font-mono text-xs text-slate-500">
                           {row.keycloak_user_id}
+                        </td>
+                        <td>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              updateMutation.reset()
+                              setEditingUser(row)
+                            }}
+                            aria-label={`Edit ${row.username}`}
+                          >
+                            <Pencil size={14} />
+                            Edit
+                          </Button>
                         </td>
                       </tr>
                     )
@@ -359,6 +392,94 @@ export function AdminUsersPage() {
             </Button>
           </div>
         </form>
+      </Dialog>
+      <Dialog
+        open={editingUser !== null}
+        onOpenChange={(open) => {
+          if (!open) setEditingUser(null)
+          else updateMutation.reset()
+        }}
+        title="Update admin user"
+        description={
+          editingUser
+            ? `Update the name or status for ${editingUser.username}.`
+            : 'Update an administrator account.'
+        }
+      >
+        {editingUser && (
+          <form
+            className="space-y-4"
+            onSubmit={(event) => {
+              event.preventDefault()
+              const formData = new FormData(event.currentTarget)
+              updateMutation.mutate({
+                userId: editingUser.keycloak_user_id,
+                updates: {
+                  first_name: String(formData.get('first_name')).trim(),
+                  last_name: String(formData.get('last_name')).trim(),
+                  status: String(formData.get('status')),
+                },
+              })
+            }}
+          >
+            <label className="field-label block">
+              First name
+              <input
+                className="input mt-2 w-full"
+                name="first_name"
+                autoComplete="given-name"
+                defaultValue={editingUser.first_name ?? ''}
+                required
+              />
+            </label>
+            <label className="field-label block">
+              Last name
+              <input
+                className="input mt-2 w-full"
+                name="last_name"
+                autoComplete="family-name"
+                defaultValue={editingUser.last_name ?? ''}
+                required
+              />
+            </label>
+            <label className="field-label block">
+              Status
+              <select
+                className="select mt-2 w-full"
+                name="status"
+                defaultValue={editingUser.status}
+                required
+              >
+                {!['ACTIVE', 'SUSPENDED'].includes(editingUser.status) && (
+                  <option value={editingUser.status}>
+                    {editingUser.status}
+                  </option>
+                )}
+                <option value="ACTIVE">Active</option>
+                <option value="SUSPENDED">Suspended</option>
+              </select>
+            </label>
+            {updateMutation.isError && (
+              <p role="alert" className="text-sm text-red-600">
+                {updateMutation.error instanceof Error
+                  ? updateMutation.error.message
+                  : 'Admin user could not be updated. Please try again.'}
+              </p>
+            )}
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setEditingUser(null)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? 'Saving...' : 'Save changes'}
+              </Button>
+            </div>
+          </form>
+        )}
       </Dialog>
     </>
   )

@@ -1,6 +1,6 @@
 import { test, expect } from './fixtures'
 
-const url = '**/identity-api/api/v1/admin/users*'
+const url = '**/identity-api/api/v1/admin/users**'
 const user = {
   keycloak_user_id: 'admin-user-1',
   username: 'admin.one',
@@ -152,6 +152,69 @@ test('create admin displays permission errors without closing the form', async (
     .click()
   await expect(page.getByRole('alert')).toHaveText(
     'You do not have permission to create admin users.',
+  )
+  await expect(page.getByRole('dialog')).toBeVisible()
+})
+
+test('update admin submits editable fields to the selected user and refreshes the list', async ({
+  page,
+}) => {
+  const updated = {
+    ...user,
+    first_name: 'Updated',
+    status: 'SUSPENDED',
+  }
+  const requests: {
+    url: string
+    authorization?: string
+    body: unknown
+  }[] = []
+  await page.route(url, async (route) => {
+    const request = route.request()
+    if (request.method() === 'PUT') {
+      requests.push({
+        url: request.url(),
+        authorization: request.headers().authorization,
+        body: request.postDataJSON(),
+      })
+      await route.fulfill({ json: updated })
+      return
+    }
+    await route.fulfill({ json: [requests.length ? updated : user] })
+  })
+  await page.goto('/admin-users')
+  await page.getByRole('button', { name: 'Edit admin.one' }).click()
+  await page.getByLabel('First name').fill('Updated')
+  await page.getByLabel('Status').selectOption('SUSPENDED')
+  await page.getByRole('button', { name: 'Save changes' }).click()
+  await expect(page.getByRole('dialog')).not.toBeVisible()
+  await expect(page.locator('tbody')).toContainText('Updated One')
+  await expect(page.locator('tbody')).toContainText('Suspended')
+  expect(requests).toHaveLength(1)
+  expect(requests[0].url).toContain(
+    '/api/v1/admin/users/admin-user-1',
+  )
+  expect(requests[0].authorization).toMatch(/^Bearer .+\.test-signature$/)
+  expect(requests[0].body).toEqual({
+    first_name: 'Updated',
+    last_name: 'One',
+    status: 'SUSPENDED',
+  })
+})
+
+test('update admin keeps the edit form open when the service rejects the request', async ({
+  page,
+}) => {
+  await page.route(url, (route) =>
+    route.request().method() === 'PUT'
+      ? route.fulfill({ status: 403, json: { error: 'forbidden' } })
+      : route.fulfill({ json: [user] }),
+  )
+  await page.goto('/admin-users')
+  await page.getByRole('button', { name: 'Edit admin.one' }).click()
+  await page.getByRole('button', { name: 'Save changes' }).click()
+  await expect(page.getByRole('alert')).toHaveText(
+    'You do not have permission to update admin users.',
   )
   await expect(page.getByRole('dialog')).toBeVisible()
 })
