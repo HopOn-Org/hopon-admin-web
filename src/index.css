@@ -1,0 +1,143 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    min-width: 360px;
+    color: #1d2939;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+    outline-offset: 3px;
+  }
+  button:not(:disabled),
+  select {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid #118066;
+  }
+  ::selection {
+    background: #cee9dd;
+    color: #075c42;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: #9aa5b3;
+  }
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+
+@layer components {
+  .sidebar {
+    @apply fixed top-0 bottom-0 left-0 z-40 flex w-[244px] -translate-x-full flex-col overflow-y-auto border-r border-slate-200 bg-white transition-transform duration-200 lg:translate-x-0;
+  }
+  .sidebar-open {
+    @apply translate-x-0;
+  }
+  .nav-item {
+    @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900;
+  }
+  .nav-item-active {
+    @apply bg-[#eaf5ee] font-semibold text-[#18714f] hover:bg-[#eaf5ee] hover:text-[#18714f];
+  }
+  .brand-mark {
+    @apply relative block h-8 w-7 -rotate-12;
+  }
+  .brand-mark span {
+    @apply absolute top-1 block h-7 w-2.5 rounded-full bg-emerald-700;
+  }
+  .brand-mark span:last-child {
+    @apply top-0 left-4;
+  }
+  .brand-mark::after {
+    content: '';
+    @apply absolute top-[13px] left-1 block h-2 w-5 rounded-full bg-emerald-700;
+  }
+  .input {
+    @apply h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-xs transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 focus:outline-none;
+  }
+  .select {
+    @apply h-10 appearance-none rounded-lg border border-slate-200 bg-white py-2 pr-9 pl-3 text-sm text-slate-600 shadow-xs focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 focus:outline-none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='1.7'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .field-label {
+    @apply text-sm font-medium text-slate-700;
+  }
+  .data-table {
+    @apply w-full border-collapse text-left text-sm;
+  }
+  .data-table thead {
+    @apply border-y border-slate-100 bg-slate-50/70;
+  }
+  .data-table th {
+    @apply whitespace-nowrap px-5 py-3 text-sm font-medium text-slate-500;
+  }
+  .data-table td {
+    @apply whitespace-nowrap border-b border-slate-100/90 px-5 py-4;
+  }
+  .data-table tr:last-child td {
+    @apply border-b-0;
+  }
+  .data-table tbody tr {
+    @apply transition-colors hover:bg-slate-50/70;
+  }
+  .compact-table {
+    @apply text-sm;
+  }
+  .compact-table th,
+  .compact-table td {
+    @apply px-4;
+  }
+  .compact-table td {
+    @apply py-3.5;
+  }
+  .map-marker {
+    @apply absolute z-10 flex size-8 items-center justify-center rounded-lg border-2 border-white bg-[#16805e] text-white shadow-md transition-colors hover:z-20 hover:bg-emerald-900 focus-visible:z-20;
+  }
+  .map-marker-busy {
+    @apply bg-[#dc9c39] hover:bg-amber-700;
+  }
+  .map-marker-selected {
+    @apply z-20 outline-4 outline-offset-4 outline-emerald-500/40;
+  }
+  .toggle {
+    @apply relative h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-slate-200 transition-colors checked:bg-emerald-700;
+  }
+  .toggle::after {
+    content: '';
+    @apply absolute top-[3px] left-[3px] size-[18px] rounded-full bg-white shadow-sm transition-transform;
+  }
+  .toggle:checked::after {
+    @apply translate-x-5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
