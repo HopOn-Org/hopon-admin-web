@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   ChevronLeft,
   ChevronRight,
+  Plus,
   RefreshCw,
   ShieldCheck,
   AlertCircle,
@@ -18,13 +19,29 @@ import {
   SearchInput,
 } from '../../components/shared/common'
 import { Button } from '../../components/ui/button'
-import { getAdminUsers } from './api'
+import { Dialog } from '../../components/ui/dialog'
+import { useUI } from '../../lib/store'
+import { createAdminUser, getAdminUsers } from './api'
+import type { NewAdminUser } from './api'
 
 export function AdminUsersPage() {
   const { user } = useAuthentication()
+  const queryClient = useQueryClient()
+  const notify = useUI((state) => state.notify)
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [limit, setLimit] = useState(50)
   const [offset, setOffset] = useState(0)
   const [search, setSearch] = useState('')
+  const createMutation = useMutation({
+    mutationFn: (newUser: NewAdminUser) => createAdminUser(newUser),
+    onSuccess: async () => {
+      setCreateDialogOpen(false)
+      notify('Admin user created')
+      await queryClient.invalidateQueries({
+        queryKey: ['admin-users', user?.subject],
+      })
+    },
+  })
   const query = useQuery({
     queryKey: ['admin-users', user?.subject, limit, offset],
     queryFn: ({ signal }) => getAdminUsers(limit, offset, signal),
@@ -52,6 +69,10 @@ export function AdminUsersPage() {
         description="View administrator accounts from the Identity Service."
         actions={
           <>
+            <Button onClick={() => setCreateDialogOpen(true)}>
+              <Plus size={15} />
+              Create admin
+            </Button>
             <Button
               variant="outline"
               disabled={query.isFetching}
@@ -243,8 +264,102 @@ export function AdminUsersPage() {
       </Card>
       <p className="mt-4 flex items-center gap-2 text-xs text-slate-500">
         <ShieldCheck size={14} />
-        Live account list · Account changes are not available from this screen.
+        Live account list · New administrator accounts are created through the
+        Identity Service.
       </p>
+      <Dialog
+        open={createDialogOpen}
+        onOpenChange={(open) => {
+          setCreateDialogOpen(open)
+          if (open) createMutation.reset()
+        }}
+        title="Create admin user"
+        description="Create an administrator account in the Identity Service."
+      >
+        <form
+          className="space-y-4"
+          onSubmit={(event) => {
+            event.preventDefault()
+            const formData = new FormData(event.currentTarget)
+            createMutation.mutate({
+              username: String(formData.get('username')).trim(),
+              password: String(formData.get('password')),
+              first_name: String(formData.get('first_name')).trim(),
+              last_name: String(formData.get('last_name')).trim(),
+              email: String(formData.get('email')).trim(),
+            })
+          }}
+        >
+          <label className="field-label block">
+            Username
+            <input
+              className="input mt-2 w-full"
+              name="username"
+              autoComplete="username"
+              required
+            />
+          </label>
+          <label className="field-label block">
+            Password
+            <input
+              className="input mt-2 w-full"
+              name="password"
+              type="password"
+              autoComplete="new-password"
+              required
+            />
+          </label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="field-label block">
+              First name
+              <input
+                className="input mt-2 w-full"
+                name="first_name"
+                autoComplete="given-name"
+                required
+              />
+            </label>
+            <label className="field-label block">
+              Last name
+              <input
+                className="input mt-2 w-full"
+                name="last_name"
+                autoComplete="family-name"
+                required
+              />
+            </label>
+          </div>
+          <label className="field-label block">
+            Email
+            <input
+              className="input mt-2 w-full"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+            />
+          </label>
+          {createMutation.isError && (
+            <p role="alert" className="text-sm text-red-600">
+              {createMutation.error instanceof Error
+                ? createMutation.error.message
+                : 'Admin user could not be created. Please try again.'}
+            </p>
+          )}
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setCreateDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={createMutation.isPending}>
+              {createMutation.isPending ? 'Creating...' : 'Create admin'}
+            </Button>
+          </div>
+        </form>
+      </Dialog>
     </>
   )
 }

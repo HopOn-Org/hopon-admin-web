@@ -86,6 +86,76 @@ test('admin list handles empty responses and retries a failed request', async ({
   ).toBeDisabled()
 })
 
+test('create admin submits authenticated user details and refreshes the list', async ({
+  page,
+}) => {
+  const created = {
+    keycloak_user_id: 'admin-user-created',
+    username: 'new.admin',
+    first_name: 'New',
+    last_name: 'Admin',
+    email: 'new.admin@example.com',
+    status: 'ACTIVE',
+  }
+  let submittedBody: Record<string, string> | undefined
+  let authorization: string | undefined
+  await page.route(url, async (route) => {
+    if (route.request().method() === 'POST') {
+      authorization = route.request().headers().authorization
+      submittedBody = route.request().postDataJSON()
+      await route.fulfill({ json: created })
+      return
+    }
+    await route.fulfill({ json: submittedBody ? [created] : [] })
+  })
+  await page.goto('/admin-users')
+  await page.getByRole('button', { name: 'Create admin' }).click()
+  await page.getByLabel('Username').fill('new.admin')
+  await page.getByLabel('Password').fill('secure-password')
+  await page.getByLabel('First name').fill('New')
+  await page.getByLabel('Last name').fill('Admin')
+  await page.getByLabel('Email').fill('new.admin@example.com')
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Create admin' })
+    .click()
+  await expect(page.getByRole('dialog')).not.toBeVisible()
+  await expect(page.locator('tbody')).toContainText('new.admin')
+  expect(authorization).toMatch(/^Bearer .+\.test-signature$/)
+  expect(submittedBody).toEqual({
+    username: 'new.admin',
+    password: 'secure-password',
+    first_name: 'New',
+    last_name: 'Admin',
+    email: 'new.admin@example.com',
+  })
+})
+
+test('create admin displays permission errors without closing the form', async ({
+  page,
+}) => {
+  await page.route(url, (route) =>
+    route.request().method() === 'POST'
+      ? route.fulfill({ status: 403, json: { error: 'forbidden' } })
+      : route.fulfill({ json: [] }),
+  )
+  await page.goto('/admin-users')
+  await page.getByRole('button', { name: 'Create admin' }).click()
+  await page.getByLabel('Username').fill('new.admin')
+  await page.getByLabel('Password').fill('secure-password')
+  await page.getByLabel('First name').fill('New')
+  await page.getByLabel('Last name').fill('Admin')
+  await page.getByLabel('Email').fill('new.admin@example.com')
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: 'Create admin' })
+    .click()
+  await expect(page.getByRole('alert')).toHaveText(
+    'You do not have permission to create admin users.',
+  )
+  await expect(page.getByRole('dialog')).toBeVisible()
+})
+
 test('admin list reports forbidden access without unlocking it or blocking other pages', async ({
   page,
 }) => {
