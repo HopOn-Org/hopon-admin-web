@@ -28,7 +28,7 @@ import {
   LogOut,
 } from 'lucide-react'
 import { useStore } from '../../lib/store'
-import { Avatar, Badge, Toast } from '../../components/shared/common'
+import { Avatar, Toast } from '../../components/shared/common'
 import { Button } from '../../components/ui/button'
 import { Dialog } from '../../components/ui/dialog'
 import { useAuthentication } from '../../features/auth/authentication-gate'
@@ -149,24 +149,14 @@ export function AdminLayout() {
             alt="HopOn"
             className="size-[76px] shrink-0 rounded-lg object-contain"
           />
-          <span className="mt-1 rounded bg-white/10 px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-blue-200">
+          <span className="mt-1 rounded bg-brand-50 px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-slate-500">
             ADMIN
           </span>
         </Link>
-        <div className="mx-4 mb-7 flex items-center gap-3 rounded-lg border border-white/15 bg-white/5 px-3 py-3">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-brand-100 text-brand-800">
-            <CarFront size={18} />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold">HopOn Sri Lanka</p>
-            <p className="mt-0.5 text-xs text-blue-200">Operations workspace</p>
-          </div>
-          <Badge className="px-1.5 text-xs">Demo</Badge>
-        </div>
         <nav className="flex-1 space-y-6 px-4" aria-label="Main navigation">
           {navigation.map((group) => (
             <div key={group.label}>
-              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-[1.5px] text-blue-200/70">
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-[1.5px] text-slate-400">
                 {group.label}
               </p>
               <div className="space-y-1">
@@ -195,7 +185,7 @@ export function AdminLayout() {
             </div>
           ))}
         </nav>
-        <div className="mt-6 border-t border-white/10 px-4 py-4">
+        <div className="mt-6 border-t border-slate-200 px-4 py-4">
           <NavLink
             to="/settings"
             onClick={() => setMobileOpen(false)}
@@ -224,7 +214,7 @@ export function AdminLayout() {
         </div>
         <Link
           to="/settings"
-          className="mx-4 mb-4 flex items-center gap-3 rounded-lg bg-white/5 p-3"
+          className="mx-4 mb-4 flex items-center gap-3 rounded-lg bg-slate-50 p-3"
         >
           <Avatar
             name={user?.name || settings.name}
@@ -235,9 +225,9 @@ export function AdminLayout() {
             <p className="truncate text-sm font-semibold">
               {user?.name || settings.name}
             </p>
-            <p className="mt-0.5 text-xs text-blue-200">Administrator</p>
+            <p className="mt-0.5 text-xs text-slate-500">Administrator</p>
           </div>
-          <ChevronDown size={14} className="text-blue-200/70" />
+          <ChevronDown size={14} className="text-slate-400" />
         </Link>
       </aside>
       <div className="lg:ml-[244px]">

@@ -31,15 +31,12 @@ import {
   Badge,
   Card,
   CardHeading,
-  PageHeading,
 } from '../../components/shared/common'
 import { Button } from '../../components/ui/button'
 import { OperationsMap } from '../live-map/operations-map'
-import { useAuthentication } from '../auth/authentication-gate'
 
 export function DashboardPage() {
-  const { user } = useAuthentication()
-  const { drivers, passengers, rides, audit, settings } = useStore()
+  const { drivers, passengers, rides, audit } = useStore()
   const notify = useUI((s) => s.notify)
   const [period, setPeriod] = useState('This week')
   const [chartMetric, setChartMetric] = useState('rides')
@@ -109,35 +106,33 @@ export function DashboardPage() {
   ]
   return (
     <>
-      <PageHeading
-        title={`Good afternoon, ${user?.givenName || user?.name.split(' ')[0] || settings.name.split(' ')[0]} 👋`}
-        description="Here's what's happening with your operations today."
-        actions={
-          <>
-            <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 sm:flex">
-              <CalendarDays size={15} />
-              Thu, Nov 26, 2026
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => {
-                exportCsv(
-                  'hopon-overview.csv',
-                  statistics.map((s) => ({
-                    Metric: s.title,
-                    Value: s.value,
-                    Context: s.caption,
-                  })),
-                )
-                notify('Overview report downloaded')
-              }}
-            >
-              <Download size={14} />
-              Export report
-            </Button>
-          </>
-        }
-      />
+      <h1 className="sr-only">Dashboard</h1>
+      <div className="mb-6 flex items-center justify-end gap-3">
+        {' '}
+        <>
+          <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-600 sm:flex">
+            <CalendarDays size={15} />
+            Thu, Nov 26, 2026
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => {
+              exportCsv(
+                'hopon-overview.csv',
+                statistics.map((s) => ({
+                  Metric: s.title,
+                  Value: s.value,
+                  Context: s.caption,
+                })),
+              )
+              notify('Overview report downloaded')
+            }}
+          >
+            <Download size={14} />
+            Export report
+          </Button>
+        </>
+      </div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-amber-200/70 bg-[#fffaf0] px-4 py-3">
         <div className="flex items-center gap-3">
           <div className="rounded-lg bg-amber-100 p-2 text-amber-700">

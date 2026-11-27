@@ -8,7 +8,7 @@ test('all pages and detail routes render without runtime errors', async ({
   test.setTimeout(90_000)
   page.on('pageerror', (error) => errors.push(error.message))
   const routes = [
-    ['/dashboard', 'Good afternoon'],
+    ['/dashboard', 'Dashboard'],
     ['/passengers', 'Passengers'],
     ['/passengers/PS-2041', 'Passenger profile'],
     ['/drivers', 'Drivers'],
@@ -215,6 +215,6 @@ test('mobile navigation and all pages stay within the viewport', async ({
   await page.screenshot({ path: 'test-results/mobile.png', fullPage: true })
   await page.setViewportSize({ width: 1440, height: 1100 })
   await page.goto('/dashboard')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Good afternoon')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Dashboard')
   await page.screenshot({ path: 'test-results/dashboard-theme.png', fullPage: true })
 })

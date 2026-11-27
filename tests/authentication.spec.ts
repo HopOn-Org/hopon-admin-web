@@ -134,7 +134,7 @@ test('uses Identity Service profile and keeps token session claims updated after
   })
   await page.goto('/dashboard')
   await expect(page.getByRole('heading', { level: 1 })).toContainText(
-    'Good afternoon, Sample',
+    'Dashboard',
   )
   await page.goto('/settings')
   await expect(page.getByRole('textbox', { name: 'Full name' })).toHaveValue(
@@ -222,7 +222,7 @@ test('refreshes a short-lived session before expiry', async ({ page }) => {
   const requests = await mockKeycloak(page, { expiresIn: 35 })
   await page.goto('/dashboard')
   await expect(page.getByRole('heading', { level: 1 })).toContainText(
-    'Good afternoon',
+    'Dashboard',
   )
   await page.clock.fastForward(11_000)
   await expect.poll(() => requests.refreshes).toBe(1)
