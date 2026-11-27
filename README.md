@@ -73,7 +73,7 @@ For Vercel, build with `npm run build` and serve `dist/`. The included `vercel.j
 
 ## Admin user directory
 
-`/admin-users` is available from **Manage admin users** in the sidebar. It requests `GET /api/v1/admin/users?limit=50&offset=0` using the current Keycloak Bearer token through the existing Identity Service proxy. It displays the name, username, email, status, and Keycloak user ID returned by the service. Authorized users can create admin accounts with **Create admin** and edit an account's first name, last name, and status. Create requests use `POST /api/v1/admin/users`; updates use `PUT /api/v1/admin/users/{keycloak_user_id}`. Vercel proxies both collection and item paths to the Identity Service.
+`/admin-users` is available from **Manage admin users** in the sidebar. It requests `GET /api/v1/admin/users?limit=50&offset=0` using the current Keycloak Bearer token through the existing Identity Service proxy. It displays the name, username, email, status, and Keycloak user ID returned by the service. Users with the `ADMIN` role can view the directory; only `SUPER_ADMIN` users see controls to create admin accounts or edit an account's first name, last name, and status. Create requests use `POST /api/v1/admin/users`; updates use `PUT /api/v1/admin/users/{keycloak_user_id}`. Vercel proxies both collection and item paths to the Identity Service.
 
 Pagination uses server limit/offset values. The API supplies an array without a total, so Next is enabled when the returned page is full. Search and CSV export apply only to the current page. Refresh, empty results, permission denial, malformed responses, and request errors have dedicated UI states. A 401 expires the local session. No delete or role-assignment endpoint is called.
 

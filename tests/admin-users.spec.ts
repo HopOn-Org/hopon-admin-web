@@ -1,4 +1,15 @@
 import { test, expect } from './fixtures'
+import { mockKeycloak } from './keycloak-mock'
+
+const superAdminTest = test.extend<{ authenticated: void }>({
+  authenticated: [
+    async ({ page }, use) => {
+      await mockKeycloak(page, { roles: ['SUPER_ADMIN'] })
+      await use()
+    },
+    { auto: true },
+  ],
+})
 
 const url = '**/identity-api/api/v1/admin/users**'
 const user = {
@@ -86,7 +97,7 @@ test('admin list handles empty responses and retries a failed request', async ({
   ).toBeDisabled()
 })
 
-test('create admin submits authenticated user details and refreshes the list', async ({
+superAdminTest('create admin submits authenticated user details and refreshes the list', async ({
   page,
 }) => {
   const created = {
@@ -131,7 +142,7 @@ test('create admin submits authenticated user details and refreshes the list', a
   })
 })
 
-test('create admin displays permission errors without closing the form', async ({
+superAdminTest('create admin displays permission errors without closing the form', async ({
   page,
 }) => {
   await page.route(url, (route) =>
@@ -156,7 +167,7 @@ test('create admin displays permission errors without closing the form', async (
   await expect(page.getByRole('dialog')).toBeVisible()
 })
 
-test('update admin submits editable fields to the selected user and refreshes the list', async ({
+superAdminTest('update admin submits editable fields to the selected user and refreshes the list', async ({
   page,
 }) => {
   const updated = {
@@ -202,7 +213,7 @@ test('update admin submits editable fields to the selected user and refreshes th
   })
 })
 
-test('update admin keeps the edit form open when the service rejects the request', async ({
+superAdminTest('update admin keeps the edit form open when the service rejects the request', async ({
   page,
 }) => {
   await page.route(url, (route) =>
@@ -217,6 +228,23 @@ test('update admin keeps the edit form open when the service rejects the request
     'You do not have permission to update admin users.',
   )
   await expect(page.getByRole('dialog')).toBeVisible()
+})
+
+test('ADMIN can view admin users but cannot create or edit them', async ({
+  page,
+}) => {
+  await page.route(url, (route) => route.fulfill({ json: [user] }))
+  await page.goto('/admin-users')
+  await expect(page.locator('tbody')).toContainText('admin.one')
+  await expect(
+    page.getByRole('button', { name: 'Create admin', exact: true }),
+  ).toHaveCount(0)
+  await expect(
+    page.getByRole('button', { name: 'Edit admin.one', exact: true }),
+  ).toHaveCount(0)
+  await expect(
+    page.getByRole('columnheader', { name: 'Actions' }),
+  ).toHaveCount(0)
 })
 
 test('admin list reports forbidden access without unlocking it or blocking other pages', async ({

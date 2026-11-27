@@ -27,6 +27,7 @@ import type { AdminUser, AdminUserUpdate, NewAdminUser } from './api'
 
 export function AdminUsersPage() {
   const { user } = useAuthentication()
+  const canManageUsers = user?.roles.includes('SUPER_ADMIN') ?? false
   const queryClient = useQueryClient()
   const notify = useUI((state) => state.notify)
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -87,10 +88,12 @@ export function AdminUsersPage() {
         description="View administrator accounts from the Identity Service."
         actions={
           <>
-            <Button onClick={() => setCreateDialogOpen(true)}>
-              <Plus size={15} />
-              Create admin
-            </Button>
+            {canManageUsers && (
+              <Button onClick={() => setCreateDialogOpen(true)}>
+                <Plus size={15} />
+                Create admin
+              </Button>
+            )}
             <Button
               variant="outline"
               disabled={query.isFetching}
@@ -183,7 +186,7 @@ export function AdminUsersPage() {
                     <th>Email</th>
                     <th>Status</th>
                     <th>Keycloak user ID</th>
-                    <th>Actions</th>
+                    {canManageUsers && <th>Actions</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -221,20 +224,22 @@ export function AdminUsersPage() {
                         <td className="font-mono text-xs text-slate-500">
                           {row.keycloak_user_id}
                         </td>
-                        <td>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              updateMutation.reset()
-                              setEditingUser(row)
-                            }}
-                            aria-label={`Edit ${row.username}`}
-                          >
-                            <Pencil size={14} />
-                            Edit
-                          </Button>
-                        </td>
+                        {canManageUsers && (
+                          <td>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                updateMutation.reset()
+                                setEditingUser(row)
+                              }}
+                              aria-label={`Edit ${row.username}`}
+                            >
+                              <Pencil size={14} />
+                              Edit
+                            </Button>
+                          </td>
+                        )}
                       </tr>
                     )
                   })}
@@ -297,8 +302,8 @@ export function AdminUsersPage() {
       </Card>
       <p className="mt-4 flex items-center gap-2 text-xs text-slate-500">
         <ShieldCheck size={14} />
-        Live account list · New administrator accounts are created through the
-        Identity Service.
+        Live account list · Only SUPER_ADMIN users can create or edit admin
+        accounts.
       </p>
       <Dialog
         open={createDialogOpen}
