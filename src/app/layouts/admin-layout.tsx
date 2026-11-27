@@ -26,6 +26,7 @@ import {
   Radio,
   CheckCheck,
   LogOut,
+  UserCog,
 } from 'lucide-react'
 import { useStore } from '../../lib/store'
 import { Avatar, Toast } from '../../components/shared/common'
@@ -49,6 +50,7 @@ const navigation = [
       { label: 'Drivers', path: '/drivers', icon: ShieldCheck },
       { label: 'Vehicles', path: '/vehicles', icon: CarFront },
       { label: 'Rides', path: '/rides', icon: Route },
+      { label: 'Manage admin users', path: '/admin-users', icon: UserCog },
     ],
   },
   {

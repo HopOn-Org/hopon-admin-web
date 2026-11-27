@@ -152,7 +152,7 @@ function applyAuthorization() {
   if (!allowed) stopRefresh()
   return allowed
 }
-async function expireSession() {
+export async function expireSession() {
   stopRefresh()
   publish('expired')
   await keycloak.clearToken()

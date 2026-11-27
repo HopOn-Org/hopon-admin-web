@@ -74,6 +74,11 @@ const Settings = lazy(() =>
   })),
 )
 const queryClient = new QueryClient()
+const AdminUsers = lazy(() =>
+  import('./features/admin-users/admin-users-page').then((m) => ({
+    default: m.AdminUsersPage,
+  })),
+)
 
 class ErrorBoundary extends Component<
   { children: ReactNode },
@@ -127,6 +132,7 @@ export default function App() {
               <Route index element={<Navigate to="/dashboard" replace />} />
               {[
                 { path: '/dashboard', element: <Dashboard /> },
+                { path: '/admin-users', element: <AdminUsers /> },
                 { path: '/passengers', element: <Passengers /> },
                 { path: '/passengers/:id', element: <PassengerDetail /> },
                 { path: '/drivers', element: <Drivers /> },
