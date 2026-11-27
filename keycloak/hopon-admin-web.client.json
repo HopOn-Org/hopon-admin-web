@@ -10,13 +10,13 @@
   "directAccessGrantsEnabled": false,
   "serviceAccountsEnabled": false,
   "authorizationServicesEnabled": false,
-  "rootUrl": "http://localhost:5173",
-  "baseUrl": "http://localhost:5173/",
-  "redirectUris": ["http://localhost:5173/*"],
-  "webOrigins": ["http://localhost:5173"],
+  "rootUrl": "https://hopon-admin-web.vercel.app",
+  "baseUrl": "https://hopon-admin-web.vercel.app/",
+  "redirectUris": ["https://hopon-admin-web.vercel.app/*"],
+  "webOrigins": ["https://hopon-admin-web.vercel.app"],
   "attributes": {
     "pkce.code.challenge.method": "S256",
-    "post.logout.redirect.uris": "http://localhost:5173"
+    "post.logout.redirect.uris": "https://hopon-admin-web.vercel.app"
   },
   "defaultClientScopes": ["web-origins", "roles", "profile", "email"]
 }

@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite, normally http://localhost:5173.
+Application URL: https://hopon-admin-web.vercel.app/. Use this deployment for Keycloak sign-in. The development command above runs a local server; it does not publish to Vercel.
 
 ```sh
 npm run build      # TypeScript check and production build
@@ -69,4 +69,4 @@ src/
 
 React Router handles SPA navigation. Recharts renders charts, TanStack Table handles client-side sorting/pagination, and React Hook Form + Zod validate settings. TanStack Query's provider is available for future integration; there are no query functions or API clients. Pages load on demand.
 
-For static hosting, serve `dist/` with an SPA fallback to `index.html` for deep links. No deployment configuration or backend code is included.
+For Vercel, build with `npm run build` and serve `dist/`. The included `vercel.json` provides the SPA fallback for deep links and authentication callbacks. No backend code is included.
