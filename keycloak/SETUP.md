@@ -57,9 +57,9 @@ The adapter initializes once outside React effects. Access/refresh/ID tokens rem
 
 The app checks for refresh every 10 seconds with `updateToken(30)`, on token expiry, and when the tab becomes active. The adapter only calls the token endpoint when a refresh is necessary. Refreshed roles are checked again. Because `checkLoginIframe` is disabled, remote logout/revocation is observed when a token refresh fails, rather than through iframe polling.
 
-## 4. Future API integration
+## 4. Identity Service APIs
 
-`getAccessToken()` in `src/lib/keycloak/authentication.ts` refreshes the current session, checks ADMIN or SUPER_ADMIN again, and returns the current in-memory access token for a future Bearer header. The Identity Service profile is the only application API called; no Go endpoint was created.
+`getAccessToken()` in `src/lib/keycloak/authentication.ts` refreshes the current session, checks ADMIN or SUPER_ADMIN again, and returns the current in-memory access token for a Bearer header. The app uses it for profile and admin-user requests; no Go endpoint was created.
 
 Backend authorization remains a separate step: validate signature using JWKS, issuer, expiration, the intended API audience, and an allowed administrator role. Add a dedicated API audience mapper when the Go API's audience is defined. The SPA client ID alone does not establish that audience.
 
@@ -77,10 +77,10 @@ The response supplies the account ID, Keycloak subject, first/last name, email, 
 
 The workspace waits for the profile to load. Network/server errors and invalid responses show a retry screen; a 401 ends the local session, and a 403 or inactive account shows Access denied. Tokens and profile data remain in memory. Profile images use the supplied URL with an initials fallback. The rest of the fleet/business dataset remains local demo data.
 
-Set `VITE_IDENTITY_API_URL` in Vercel and rebuild if you need to change the API host. The default uses a same-origin Vercel rewrite to the existing Identity Service, so browser CORS is not needed. A direct API URL override requires service-side CORS. No backend endpoint was created or modified.
+Set `VITE_IDENTITY_API_URL` in Vercel and rebuild if you need to change the API host. The default uses same-origin Vercel rewrites to the existing Identity Service, so browser CORS is not needed. Admin user collection and item paths are both proxied, preserving methods such as GET, POST, and PUT. A direct API URL override requires service-side CORS. No backend endpoint was created or modified.
 
 Session details and authorization use the adapter-decoded access-token claims. Issuer, audience, client, session/token IDs, token type, scopes, authentication context, allowed origins, and issue/expiry/authentication timestamps remain available in Settings. Epoch times display in Asia/Colombo; acr is displayed without inferring MFA enrollment.
 
 ### Current CORS verification
 
-A credential-free preflight request to `/api/v1/users/me` with `Origin: https://hopon-admin-web.vercel.app`, method GET, and requested header Authorization returned HTTP 405 without Access-Control-Allow-Origin during implementation. Browser integration requires the service to handle OPTIONS and return appropriate CORS headers for that origin, GET, and Authorization (including on error responses). The included Vercel rewrite avoids this cross-origin browser request by proxying only the existing profile endpoint. Vite has the matching development proxy. Set `VITE_IDENTITY_API_URL=/identity-api` in Vercel and redeploy to enable it. No backend handler was added. The supplied example bearer token was not saved or used.
+A credential-free preflight request to `/api/v1/users/me` with `Origin: https://hopon-admin-web.vercel.app`, method GET, and requested header Authorization returned HTTP 405 without Access-Control-Allow-Origin during implementation. Browser integration requires the service to handle OPTIONS and return appropriate CORS headers for that origin, GET, and Authorization (including on error responses). The included Vercel rewrite avoids this cross-origin browser request by proxying the profile endpoint and admin-user collection/item endpoints. Vite has the matching development proxy. Set `VITE_IDENTITY_API_URL=/identity-api` in Vercel and redeploy to enable it. No backend handler was added. The supplied example bearer token was not saved or used.

@@ -69,12 +69,12 @@ src/
 
 React Router handles SPA navigation. Recharts renders charts, TanStack Table handles client-side sorting/pagination, and React Hook Form + Zod validate settings. TanStack Query's provider is available for future integration; there are no query functions or API clients. Pages load on demand.
 
-For Vercel, build with `npm run build` and serve `dist/`. The included `vercel.json` provides the SPA fallback for deep links and authentication callbacks. No backend code is included.
+For Vercel, build with `npm run build` and serve `dist/`. The included `vercel.json` provides the SPA fallback for deep links and authentication callbacks, and rewrites Identity Service API paths. No backend code is included.
 
 ## Admin user directory
 
-`/admin-users` is available from **Manage admin users** in the sidebar. It requests `GET /api/v1/admin/users?limit=50&offset=0` using the current Keycloak Bearer token through the existing Identity Service proxy. It displays the name, username, email, status, and Keycloak user ID returned by the service.
+`/admin-users` is available from **Manage admin users** in the sidebar. It requests `GET /api/v1/admin/users?limit=50&offset=0` using the current Keycloak Bearer token through the existing Identity Service proxy. It displays the name, username, email, status, and Keycloak user ID returned by the service. Authorized users can create admin accounts with **Create admin** and edit an account's first name, last name, and status. Create requests use `POST /api/v1/admin/users`; updates use `PUT /api/v1/admin/users/{keycloak_user_id}`. Vercel proxies both collection and item paths to the Identity Service.
 
-Pagination uses server limit/offset values. The API supplies an array without a total, so Next is enabled when the returned page is full. Search and CSV export apply only to the current page. Refresh, empty results, permission denial, malformed responses, and request errors have dedicated UI states. A 401 expires the local session. No create, edit, delete, or role-assignment endpoint is called.
+Pagination uses server limit/offset values. The API supplies an array without a total, so Next is enabled when the returned page is full. Search and CSV export apply only to the current page. Refresh, empty results, permission denial, malformed responses, and request errors have dedicated UI states. A 401 expires the local session. No delete or role-assignment endpoint is called.
 
-Both admitted frontend roles can navigate to the page; the Identity Service independently determines permission and can return 403. Redeploy Vercel to apply the additional exact-path rewrite for the admin user endpoint. No pasted example tokens are used.
+Both admitted frontend roles can navigate to the page; the Identity Service independently determines permission and can return 403. Redeploy Vercel to apply the admin user collection and item path rewrites. No pasted example tokens are used.
