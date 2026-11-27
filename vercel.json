@@ -4,8 +4,12 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/identity-api/api/v1/admin/users/:path*",
-      "destination": "https://hopon-identity-service-183823945736.asia-south1.run.app/api/v1/admin/users/:path*"
+      "source": "/identity-api/api/v1/admin/users",
+      "destination": "https://hopon-identity-service-183823945736.asia-south1.run.app/api/v1/admin/users"
+    },
+    {
+      "source": "/identity-api/api/v1/admin/users/:userId",
+      "destination": "https://hopon-identity-service-183823945736.asia-south1.run.app/api/v1/admin/users/:userId"
     },
     {
       "source": "/identity-api/api/v1/users/me",
@@ -15,7 +19,14 @@
   ],
   "headers": [
     {
-      "source": "/identity-api/api/v1/admin/users/:path*",
+      "source": "/identity-api/api/v1/admin/users",
+      "headers": [
+        { "key": "Cache-Control", "value": "private, no-store" },
+        { "key": "Vercel-CDN-Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/identity-api/api/v1/admin/users/:userId",
       "headers": [
         { "key": "Cache-Control", "value": "private, no-store" },
         { "key": "Vercel-CDN-Cache-Control", "value": "no-store" }
