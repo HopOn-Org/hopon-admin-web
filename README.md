@@ -1,6 +1,6 @@
-﻿# HopOn Admin Web
+# HopOn Admin Web
 
-A responsive frontend operations workspace built with React, TypeScript, Vite, and Tailwind CSS. All records are fictional sample data. No backend APIs, authentication providers, map services, or payment services are called.
+A responsive frontend operations workspace built with React, TypeScript, Vite, and Tailwind CSS. Business records are fictional sample data. Administrator sign-in uses Keycloak; no business backend APIs, map services, or payment services are called.
 
 ## Run locally
 
@@ -42,7 +42,7 @@ Playwright uses installed Google Chrome. It starts a local Vite server or reuses
 | `/notifications`          | Read/unread notifications and links to related screens                                           |
 | `/settings`               | Validated profile form, preferences, reset demo data                                             |
 
-The app opens into a demo administrator session. Keycloak/OIDC is deliberately not integrated.
+The app requires Keycloak sign-in and the ADMIN realm role before rendering the workspace. Read [Keycloak setup](keycloak/SETUP.md) to configure the public SPA client, allowed redirect/origin settings, and administrator MFA. The default auth server is https://hopon-auth.duckdns.org (realm hopon, client hopon-admin-web).
 
 ## Local behavior
 
@@ -63,7 +63,7 @@ src/
   components/shared/ Tables, confirmations, badges, exports, toasts
   data/              Typed sample records and illustrative metrics
   features/          Feature pages and local workflows
-  lib/               Persistent state, CSV utilities, formatting
+  lib/               Keycloak authentication, persistent demo state, utilities
   types/             Shared domain types
 ```
 

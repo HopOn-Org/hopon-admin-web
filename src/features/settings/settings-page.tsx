@@ -19,6 +19,7 @@ import {
   PageHeading,
 } from '../../components/shared/common'
 import { Button } from '../../components/ui/button'
+import { useAuthentication } from '../auth/authentication-gate'
 
 const schema = z.object({
   name: z
@@ -34,6 +35,7 @@ const schema = z.object({
 })
 type FormValues = z.infer<typeof schema>
 export function SettingsPage() {
+  const { user } = useAuthentication()
   const { settings, saveSettings, reset } = useStore()
   const notify = useUI((s) => s.notify)
   const [resetOpen, setResetOpen] = useState(false)
@@ -210,9 +212,10 @@ export function SettingsPage() {
                 <ShieldCheck size={17} className="mt-0.5 text-slate-400" />
                 <div>
                   <p className="text-sm text-slate-500">Authentication</p>
-                  <p className="mt-1 text-sm font-medium">Demo session</p>
+                  <p className="mt-1 text-sm font-medium">Keycloak session</p>
                   <p className="mt-1 text-sm leading-5 text-slate-400">
-                    Keycloak is not connected.
+                    Signed in as {user?.username || user?.name}. Realm role:
+                    ADMIN.
                   </p>
                 </div>
               </div>
@@ -253,7 +256,7 @@ export function SettingsPage() {
             <p>
               HopOn Admin Web v1.0
               <br />
-              Frontend preview · No backend connections
+              Sample business data · Keycloak sign-in
             </p>
           </div>
         </div>

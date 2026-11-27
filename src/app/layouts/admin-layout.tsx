@@ -25,11 +25,14 @@ import {
   Command,
   Radio,
   CheckCheck,
+  LogOut,
 } from 'lucide-react'
 import { useStore } from '../../lib/store'
 import { Avatar, Badge, Toast } from '../../components/shared/common'
 import { Button } from '../../components/ui/button'
 import { Dialog } from '../../components/ui/dialog'
+import { useAuthentication } from '../../features/auth/authentication-gate'
+import { logout } from '../../lib/keycloak/authentication'
 
 const navigation = [
   {
@@ -62,6 +65,7 @@ const navigation = [
   },
 ]
 export function AdminLayout() {
+  const { user } = useAuthentication()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -217,14 +221,20 @@ export function AdminLayout() {
             Help & resources
             <ArrowUpRight size={14} className="ml-auto" />
           </button>
+          <button className="nav-item w-full" onClick={() => void logout()}>
+            <LogOut size={18} strokeWidth={1.7} />
+            Sign out
+          </button>
         </div>
         <Link
           to="/settings"
           className="mx-4 mb-4 flex items-center gap-3 rounded-lg bg-slate-50 p-3"
         >
-          <Avatar name={settings.name} size="sm" />
+          <Avatar name={user?.name || settings.name} size="sm" />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">{settings.name}</p>
+            <p className="truncate text-sm font-semibold">
+              {user?.name || settings.name}
+            </p>
             <p className="mt-0.5 text-xs text-slate-500">Administrator</p>
           </div>
           <ChevronDown size={14} className="text-slate-400" />
@@ -321,7 +331,7 @@ export function AdminLayout() {
               )}
             </div>
             <Link to="/settings" aria-label="Account settings">
-              <Avatar name={settings.name} size="sm" />
+              <Avatar name={user?.name || settings.name} size="sm" />
             </Link>
           </div>
         </header>
@@ -416,8 +426,9 @@ export function AdminLayout() {
             sample data from Settings.
           </p>
           <div className="rounded-lg bg-emerald-50 p-4 text-emerald-900">
-            This demo does not connect to Keycloak, Google Maps, payment
-            providers, or backend services.
+            Sign-in is managed by Keycloak. Fleet and business data remain local
+            samples; Google Maps, payment providers, and backend APIs are not
+            connected.
           </div>
           <p className="text-sm">
             Tip: press Ctrl / ⌘ + K to search the workspace.

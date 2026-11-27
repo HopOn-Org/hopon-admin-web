@@ -1,4 +1,5 @@
-﻿import { test, expect } from '@playwright/test'
+import { test, expect } from './fixtures'
+import { authOrigin } from './keycloak-mock'
 
 test('all pages and detail routes render without runtime errors', async ({
   page,
@@ -115,6 +116,7 @@ test('map filters, transaction details and CSV exports work locally', async ({
   page.on('request', (request) => {
     if (
       !request.url().startsWith('http://localhost:5173') &&
+      !request.url().startsWith(authOrigin) &&
       !request.url().startsWith('data:')
     )
       remoteRequests.push(request.url())

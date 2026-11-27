@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { getAuthenticationState } from './keycloak/authentication'
 import {
   seedAudit,
   seedDrivers,
@@ -64,7 +65,7 @@ export const useStore = create<Store>()(
           id: crypto.randomUUID(),
           action: `Account ${status === 'Suspended' ? 'suspended' : 'reactivated'}`,
           target: target.name,
-          actor: get().settings.name,
+          actor: getAuthenticationState().user?.name || get().settings.name,
           time: new Date().toISOString(),
           category: 'Accounts',
           reason,
@@ -105,7 +106,7 @@ export const useStore = create<Store>()(
           id: crypto.randomUUID(),
           action: `Driver ${verification.toLowerCase()}`,
           target: driver.name,
-          actor: get().settings.name,
+          actor: getAuthenticationState().user?.name || get().settings.name,
           time: new Date().toISOString(),
           category: 'Verification',
           reason,
@@ -131,7 +132,7 @@ export const useStore = create<Store>()(
               id: crypto.randomUUID(),
               action: 'Preferences updated',
               target: 'Admin preferences',
-              actor: settings.name,
+              actor: getAuthenticationState().user?.name || settings.name,
               time: new Date().toISOString(),
               category: 'Settings',
               reason: 'Updated profile and notification preferences.',
