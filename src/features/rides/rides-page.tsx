@@ -48,7 +48,7 @@ export function RidesPage() {
       header: 'Ride ID',
       cell: ({ row }) => (
         <Link
-          className="font-semibold text-emerald-700"
+          className="font-semibold text-brand-700"
           to={`/rides/${row.original.id}`}
         >
           {row.original.id}
@@ -63,7 +63,7 @@ export function RidesPage() {
       header: 'Passenger',
       cell: ({ row }) => (
         <Link
-          className="hover:text-emerald-700"
+          className="hover:text-brand-700"
           to={`/passengers/${row.original.passengerId}`}
         >
           {passengers.find((p) => p.id === row.original.passengerId)?.name}
@@ -76,7 +76,7 @@ export function RidesPage() {
       cell: ({ row }) => (
         <div className="max-w-[230px] text-sm">
           <p className="flex items-center gap-2">
-            <span className="size-1.5 shrink-0 rounded-full border border-emerald-600" />
+            <span className="size-1.5 shrink-0 rounded-full border border-brand-600" />
             {row.original.pickup}
           </p>
           <p className="mt-2 flex items-center gap-2 text-slate-400">
@@ -91,7 +91,7 @@ export function RidesPage() {
       header: 'Driver',
       cell: ({ row }) => (
         <Link
-          className="hover:text-emerald-700"
+          className="hover:text-brand-700"
           to={`/drivers/${row.original.driverId}`}
         >
           {row.original.status === 'Requested'
@@ -174,7 +174,7 @@ export function RidesPage() {
           },
         ].map((s) => (
           <Card key={s.label} className="flex items-center gap-3 p-5">
-            <span className="rounded-lg bg-slate-50 p-2.5 text-emerald-700">
+            <span className="rounded-lg bg-slate-50 p-2.5 text-brand-700">
               <s.icon size={20} />
             </span>
             <div>
@@ -316,7 +316,7 @@ export function RideDetailPage() {
                 <path
                   d="M100 145L230 145Q270 145 270 110L270 75Q270 45 310 45L560 45"
                   fill="none"
-                  stroke="#118066"
+                  stroke="#0866FF"
                   strokeWidth="4"
                   strokeLinecap="round"
                 />
@@ -325,14 +325,14 @@ export function RideDetailPage() {
                   cy="145"
                   r="10"
                   fill="white"
-                  stroke="#118066"
+                  stroke="#0866FF"
                   strokeWidth="4"
                 />
                 <circle
                   cx="560"
                   cy="45"
                   r="10"
-                  fill="#118066"
+                  fill="#0866FF"
                   stroke="white"
                   strokeWidth="4"
                 />
@@ -361,7 +361,7 @@ export function RideDetailPage() {
             </p>
             <div className="space-y-5 p-5">
               <div className="flex items-start gap-3">
-                <span className="rounded-full bg-emerald-50 p-2 text-emerald-700">
+                <span className="rounded-full bg-brand-50 p-2 text-brand-700">
                   <MapPin size={18} />
                 </span>
                 <div>
@@ -390,9 +390,9 @@ export function RideDetailPage() {
               {timeline.slice(0, progress + 1).map((event, i) => (
                 <div key={event} className="relative flex gap-4 pb-6 last:pb-0">
                   {i < progress && (
-                    <span className="absolute top-6 left-2.5 h-[calc(100%-20px)] w-px bg-emerald-200" />
+                    <span className="absolute top-6 left-2.5 h-[calc(100%-20px)] w-px bg-brand-200" />
                   )}
-                  <span className="relative z-10 rounded-full bg-emerald-50 p-1 text-emerald-700">
+                  <span className="relative z-10 rounded-full bg-brand-50 p-1 text-brand-700">
                     <CheckCircle2 size={15} />
                   </span>
                   <div>

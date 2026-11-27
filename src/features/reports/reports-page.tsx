@@ -58,7 +58,7 @@ export function ReportsPage() {
       .filter((r) => r.method === method)
       .reduce((s, r) => s + r.fare, 0),
   }))
-  const colors = ['#118066', '#8fc4b1', '#d2e7dc']
+  const colors = ['#0866FF', '#00C8F8', '#D6EDFF']
   return (
     <>
       <PageHeading
@@ -117,7 +117,7 @@ export function ReportsPage() {
           <Card className="p-5" key={s.label}>
             <div className="flex items-center justify-between">
               <p className="text-sm text-slate-500">{s.label}</p>
-              <s.icon size={17} className="text-emerald-700" />
+              <s.icon size={17} className="text-brand-700" />
             </div>
             <p className="mt-4 text-2xl font-semibold tracking-tight">
               {s.value}
@@ -145,8 +145,8 @@ export function ReportsPage() {
                     x2="0"
                     y2="1"
                   >
-                    <stop stopColor="#118066" stopOpacity={0.25} />
-                    <stop offset="100%" stopColor="#118066" stopOpacity={0} />
+                    <stop stopColor="#0866FF" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="#0866FF" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
@@ -170,7 +170,7 @@ export function ReportsPage() {
                 <Area
                   type="monotone"
                   dataKey="Revenue"
-                  stroke="#118066"
+                  stroke="#0866FF"
                   fill="url(#reportGradient)"
                   strokeWidth={2.5}
                 />
@@ -206,7 +206,7 @@ export function ReportsPage() {
                 <Tooltip cursor={{ fill: '#f1f5f3' }} />
                 <Bar
                   dataKey="Rides"
-                  fill="#118066"
+                  fill="#0866FF"
                   radius={[6, 6, 0, 0]}
                   maxBarSize={52}
                 />

@@ -213,4 +213,8 @@ test('mobile navigation and all pages stay within the viewport', async ({
     expect(overflow, `${route} should not overflow horizontally`).toBe(false)
   }
   await page.screenshot({ path: 'test-results/mobile.png', fullPage: true })
+  await page.setViewportSize({ width: 1440, height: 1100 })
+  await page.goto('/dashboard')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Good afternoon')
+  await page.screenshot({ path: 'test-results/dashboard-theme.png', fullPage: true })
 })

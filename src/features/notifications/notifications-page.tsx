@@ -28,10 +28,10 @@ export function NotificationsPage() {
           {notifications.map((n) => (
             <div
               key={n.id}
-              className={`flex items-start gap-4 p-5 ${n.read ? '' : 'bg-emerald-50/30'}`}
+              className={`flex items-start gap-4 p-5 ${n.read ? '' : 'bg-brand-50/30'}`}
             >
               <span
-                className={`rounded-xl p-3 ${n.read ? 'bg-slate-100 text-slate-400' : 'bg-emerald-100 text-emerald-700'}`}
+                className={`rounded-xl p-3 ${n.read ? 'bg-slate-100 text-slate-400' : 'bg-brand-100 text-brand-700'}`}
               >
                 <Bell size={19} />
               </span>
@@ -39,7 +39,7 @@ export function NotificationsPage() {
                 <Link
                   to={n.link}
                   onClick={() => markRead(n.id)}
-                  className="text-sm font-semibold hover:text-emerald-700"
+                  className="text-sm font-semibold hover:text-brand-700"
                 >
                   {n.title}
                 </Link>

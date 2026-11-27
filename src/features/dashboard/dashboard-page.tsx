@@ -96,7 +96,7 @@ export function DashboardPage() {
       change: '+18.6%',
       caption: 'across sample ride history',
       icon: Route,
-      color: 'text-emerald-700 bg-emerald-50',
+      color: 'text-brand-700 bg-brand-50',
     },
     {
       title: "Today's revenue",
@@ -173,7 +173,7 @@ export function DashboardPage() {
               {stat.value}
             </p>
             <div className="mt-4 flex items-center gap-1.5 text-xs">
-              <span className="flex items-center gap-0.5 font-medium text-emerald-700">
+              <span className="flex items-center gap-0.5 font-medium text-green-600">
                 <TrendingUp size={11} />
                 {stat.change}
               </span>
@@ -207,7 +207,7 @@ export function DashboardPage() {
                   ? chart.reduce((s, d) => s + d.rides, 0).toLocaleString()
                   : money(chart.reduce((s, d) => s + d.revenue, 0))}
               </p>
-              <span className="mb-1.5 rounded bg-emerald-50 px-1.5 py-0.5 text-xs font-semibold text-emerald-700">
+              <span className="mb-1.5 rounded bg-brand-50 px-1.5 py-0.5 text-xs font-semibold text-brand-700">
                 +18.6%
               </span>
             </div>
@@ -231,8 +231,8 @@ export function DashboardPage() {
               >
                 <defs>
                   <linearGradient id="rideGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#0b906a" stopOpacity={0.18} />
-                    <stop offset="100%" stopColor="#0b906a" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#0866FF" stopOpacity={0.18} />
+                    <stop offset="100%" stopColor="#0866FF" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
@@ -282,7 +282,7 @@ export function DashboardPage() {
                   type="monotone"
                   dataKey={chartMetric}
                   name={chartMetric === 'rides' ? 'Rides' : 'Revenue'}
-                  stroke="#0b906a"
+                  stroke="#0866FF"
                   fill="url(#rideGradient)"
                   strokeWidth={2.5}
                 />
@@ -293,7 +293,7 @@ export function DashboardPage() {
             <span>Illustrative trend · Sample data</span>
             <div className="flex gap-4">
               <span className="flex items-center gap-1.5">
-                <span className="size-1.5 rounded-full bg-emerald-600" />
+                <span className="size-1.5 rounded-full bg-brand-600" />
                 Current period
               </span>
               <span className="flex items-center gap-1.5">
@@ -308,8 +308,8 @@ export function DashboardPage() {
             title="Live operations"
             description="Your fleet, at a glance"
             action={
-              <span className="flex items-center gap-1.5 rounded bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
-                <span className="size-1.5 rounded-full bg-emerald-500" />
+              <span className="flex items-center gap-1.5 rounded bg-brand-50 px-2 py-1 text-xs font-medium text-brand-700">
+                <span className="size-1.5 rounded-full bg-green-600" />
                 Simulation
               </span>
             }
@@ -322,7 +322,7 @@ export function DashboardPage() {
             </div>
             <div className="h-7 w-px bg-slate-100" />
             <div className="text-center">
-              <p className="text-base font-semibold text-emerald-700">
+              <p className="text-base font-semibold text-green-600">
                 {online.filter((d) => d.availability === 'Available').length}
               </p>
               <p className="mt-0.5 text-xs text-slate-400">Available</p>
@@ -343,10 +343,7 @@ export function DashboardPage() {
             title="Recent rides"
             description="The latest journeys on HopOn"
             action={
-              <Link
-                className="text-sm font-medium text-emerald-700"
-                to="/rides"
-              >
+              <Link className="text-sm font-medium text-brand-700" to="/rides">
                 View all rides
               </Link>
             }
@@ -373,7 +370,7 @@ export function DashboardPage() {
                       <td>
                         <Link
                           to={`/rides/${ride.id}`}
-                          className="font-semibold text-slate-700 hover:text-emerald-700"
+                          className="font-semibold text-slate-700 hover:text-brand-700"
                         >
                           #{ride.id.slice(3)}
                         </Link>
@@ -397,7 +394,7 @@ export function DashboardPage() {
                         <Link
                           aria-label={`View ride ${ride.id}`}
                           to={`/rides/${ride.id}`}
-                          className="text-slate-400 hover:text-emerald-700"
+                          className="text-slate-400 hover:text-brand-700"
                         >
                           <ArrowUpRight size={15} />
                         </Link>
@@ -439,7 +436,7 @@ export function DashboardPage() {
               </Link>
             ))}
             {!pending.length && (
-              <p className="py-10 text-center text-sm text-emerald-700">
+              <p className="py-10 text-center text-sm text-brand-700">
                 All caught up. No pending applications.
               </p>
             )}
@@ -456,7 +453,7 @@ export function DashboardPage() {
           <CardHeading
             title="Recent activity"
             action={
-              <Link to="/audit-logs" className="text-sm text-emerald-700">
+              <Link to="/audit-logs" className="text-sm text-brand-700">
                 View audit log
               </Link>
             }
@@ -465,7 +462,7 @@ export function DashboardPage() {
             {audit.slice(0, 3).map((entry, i) => (
               <div className="flex items-start gap-3" key={entry.id}>
                 <span
-                  className={`rounded-full p-1.5 ${i === 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}
+                  className={`rounded-full p-1.5 ${i === 0 ? 'bg-brand-50 text-brand-700' : 'bg-slate-100 text-slate-500'}`}
                 >
                   {i === 0 ? <Check size={13} /> : <Activity size={13} />}
                 </span>
@@ -487,27 +484,27 @@ export function DashboardPage() {
             ))}
           </div>
         </Card>
-        <Card className="relative overflow-hidden bg-[#eef6f2]">
+        <Card className="relative overflow-hidden bg-[#EFF7FF]">
           <div className="relative z-10 p-6">
-            <div className="mb-3 flex size-9 items-center justify-center rounded-lg bg-white text-emerald-800">
+            <div className="mb-3 flex size-9 items-center justify-center rounded-lg bg-white text-brand-800">
               <Clock3 size={20} />
             </div>
-            <h2 className="text-lg font-semibold tracking-tight text-emerald-950">
+            <h2 className="text-lg font-semibold tracking-tight text-brand-950">
               A clearer picture of every journey.
             </h2>
-            <p className="mt-2 max-w-sm text-sm leading-5 text-emerald-900/65">
+            <p className="mt-2 max-w-sm text-sm leading-5 text-brand-900/65">
               Explore ride trends, fleet performance, and revenue in your
               operations reports.
             </p>
             <Link
               to="/reports"
-              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-emerald-800"
+              className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-brand-800"
             >
               Explore reports
               <ArrowUpRight size={14} />
             </Link>
           </div>
-          <div className="absolute -right-10 -bottom-20 size-64 rounded-full border-[28px] border-emerald-800/[.04]" />
+          <div className="absolute -right-10 -bottom-20 size-64 rounded-full border-[28px] border-brand-800/[.04]" />
         </Card>
       </div>
     </>

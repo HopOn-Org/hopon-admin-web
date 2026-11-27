@@ -29,13 +29,13 @@ export function Badge({
     'Available',
     'Verified',
   ].includes(text)
-    ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/10'
+    ? 'bg-green-50 text-green-700 ring-green-600/10'
     : ['Pending', 'Requested', 'Accepted', 'On trip', 'Unverified'].includes(
           text,
         )
       ? 'bg-amber-50 text-amber-700 ring-amber-600/10'
       : ['Suspended', 'Rejected', 'Cancelled', 'Failed'].includes(text)
-        ? 'bg-rose-50 text-rose-700 ring-rose-600/10'
+        ? 'bg-red-50 text-red-700 ring-red-600/10'
         : 'bg-slate-100 text-slate-600 ring-slate-600/10'
   return (
     <span
@@ -110,7 +110,7 @@ export function PageHeading({
     <div className="mb-7 flex flex-wrap items-center justify-between gap-4">
       <div>
         {eyebrow && (
-          <p className="mb-1.5 text-sm font-semibold uppercase tracking-widest text-emerald-700">
+          <p className="mb-1.5 text-sm font-semibold uppercase tracking-widest text-brand-700">
             {eyebrow}
           </p>
         )}
@@ -264,7 +264,7 @@ export function BackLink({
   return (
     <Link
       to={to}
-      className="mb-5 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-emerald-700"
+      className="mb-5 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-brand-700"
     >
       <span aria-hidden>‹</span>
       {children}
@@ -317,7 +317,7 @@ export function ConfirmAction({
             'mb-5 flex gap-3 rounded-lg p-3.5 text-sm',
             dangerous
               ? 'bg-amber-50 text-amber-900'
-              : 'bg-emerald-50 text-emerald-900',
+              : 'bg-brand-50 text-brand-900',
           )}
         >
           {dangerous ? (
@@ -379,9 +379,9 @@ export function Toast() {
   return (
     <div
       role="status"
-      className="fixed right-5 bottom-5 z-[100] flex max-w-[calc(100%-2.5rem)] items-center gap-3 rounded-xl border border-emerald-200 bg-white p-4 text-sm shadow-lg"
+      className="fixed right-5 bottom-5 z-[100] flex max-w-[calc(100%-2.5rem)] items-center gap-3 rounded-xl border border-brand-200 bg-white p-4 text-sm shadow-lg"
     >
-      <span className="rounded-full bg-emerald-100 p-1 text-emerald-700">
+      <span className="rounded-full bg-brand-100 p-1 text-brand-700">
         <Check size={15} />
       </span>
       {toast}

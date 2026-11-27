@@ -62,7 +62,7 @@ export function VehiclesPage() {
       cell: ({ row }) => (
         <Link
           to={`/drivers/${row.original.id}`}
-          className="flex items-center gap-2 hover:text-emerald-700"
+          className="flex items-center gap-2 hover:text-brand-700"
         >
           <Avatar name={row.original.name} size="sm" index={row.index} />
           {row.original.name}
@@ -115,14 +115,14 @@ export function VehiclesPage() {
           {
             name: 'Tuk',
             icon: Navigation,
-            color: 'bg-emerald-50 text-emerald-700',
+            color: 'bg-brand-50 text-brand-700',
           },
           { name: 'Bike', icon: Bike, color: 'bg-amber-50 text-amber-700' },
         ].map((v) => (
           <button
             key={v.name}
             onClick={() => setType(type === v.name ? 'All' : v.name)}
-            className={`flex items-center gap-4 rounded-xl border bg-white p-5 text-left shadow-xs transition-colors ${type === v.name ? 'border-emerald-500 ring-1 ring-emerald-500' : 'border-slate-200 hover:border-emerald-300'}`}
+            className={`flex items-center gap-4 rounded-xl border bg-white p-5 text-left shadow-xs transition-colors ${type === v.name ? 'border-brand-500 ring-1 ring-brand-500' : 'border-slate-200 hover:border-brand-300'}`}
           >
             <span className={`rounded-xl p-3 ${v.color}`}>
               <v.icon size={24} />

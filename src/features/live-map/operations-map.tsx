@@ -189,8 +189,8 @@ export function OperationsMap({
       </div>
       <div className="absolute top-4 left-4 flex items-center gap-2 rounded-lg border border-white/80 bg-white/95 px-3 py-2 shadow-sm">
         <span className="relative flex size-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-50" />
-          <span className="relative size-2 rounded-full bg-emerald-500" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-50" />
+          <span className="relative size-2 rounded-full bg-location" />
         </span>
         <span className="text-sm font-medium">
           {visible.length} drivers on map
@@ -246,7 +246,7 @@ export function OperationsMap({
           <div className="mt-3 flex items-center justify-between">
             <Badge>{selectedDriver.availability}</Badge>
             <Link
-              className="text-sm font-medium text-emerald-700"
+              className="text-sm font-medium text-brand-700"
               to={`/drivers/${selectedDriver.id}`}
             >
               View profile

@@ -38,7 +38,7 @@ export function LiveMapPage() {
         title="Live operations"
         description="A city in motion. Keep an eye on your drivers and active journeys."
         actions={
-          <span className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700">
+          <span className="flex items-center gap-2 rounded-lg border border-brand-200 bg-brand-50 px-3 py-2 text-sm font-medium text-brand-700">
             <Radio size={14} />
             Simulation mode
           </span>
@@ -56,7 +56,7 @@ export function LiveMapPage() {
             name: 'Available for rides',
             value: online.filter((d) => d.availability === 'Available').length,
             icon: MapPin,
-            color: 'text-emerald-700',
+            color: 'text-brand-700',
           },
           {
             name: 'Currently on a trip',
@@ -136,7 +136,7 @@ export function LiveMapPage() {
           />
           <div className="flex flex-wrap items-center gap-5 px-5 py-4 text-sm text-slate-500">
             <span className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-emerald-600" />
+              <span className="size-2 rounded-full bg-brand-600" />
               Available
             </span>
             <span className="flex items-center gap-2">
@@ -164,7 +164,7 @@ export function LiveMapPage() {
             {filtered.map((driver, i) => (
               <div
                 key={driver.id}
-                className={`p-4 ${params.get('driver') === driver.id ? 'bg-emerald-50/60' : ''}`}
+                className={`p-4 ${params.get('driver') === driver.id ? 'bg-brand-50/60' : ''}`}
               >
                 <button
                   className="flex w-full items-center gap-3 text-left"
@@ -186,7 +186,7 @@ export function LiveMapPage() {
                   </span>
                   <Link
                     to={`/drivers/${driver.id}`}
-                    className="text-xs font-medium text-emerald-700"
+                    className="text-xs font-medium text-brand-700"
                   >
                     Profile
                   </Link>

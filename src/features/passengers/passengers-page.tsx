@@ -54,7 +54,7 @@ export function PassengersPage() {
           className="flex items-center gap-3"
         >
           <Avatar name={row.original.name} index={row.index} />
-          <span className="font-medium hover:text-emerald-700">
+          <span className="font-medium hover:text-brand-700">
             {row.original.name}
             <span className="mt-1 block text-sm font-normal text-slate-400">
               {row.original.id}
@@ -143,7 +143,7 @@ export function PassengersPage() {
             label: 'Active accounts',
             value: passengers.filter((p) => p.status === 'Active').length,
             icon: UserCheck,
-            color: 'text-emerald-700 bg-emerald-50',
+            color: 'text-brand-700 bg-brand-50',
           },
           {
             label: 'Suspended accounts',
@@ -292,7 +292,7 @@ export function PassengerDetailPage() {
                 label: 'Phone verification',
                 value: (
                   <span className="flex items-center gap-1 text-base">
-                    <ShieldCheck size={18} className="text-emerald-600" />
+                    <ShieldCheck size={18} className="text-brand-600" />
                     {passenger.verified ? 'Verified' : 'Pending'}
                   </span>
                 ),
@@ -326,7 +326,7 @@ export function PassengerDetailPage() {
                       <tr key={r.id}>
                         <td>
                           <Link
-                            className="font-medium text-emerald-700"
+                            className="font-medium text-brand-700"
                             to={`/rides/${r.id}`}
                           >
                             {r.id}

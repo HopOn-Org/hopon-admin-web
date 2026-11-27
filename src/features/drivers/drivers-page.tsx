@@ -61,7 +61,7 @@ export function DriversPage() {
           className="flex items-center gap-3"
         >
           <Avatar name={row.original.name} index={row.index + 2} />
-          <span className="font-medium hover:text-emerald-700">
+          <span className="font-medium hover:text-brand-700">
             {row.original.name}
             <span className="mt-1 block text-sm font-normal text-slate-400">
               {row.original.id} · {row.original.phone}
@@ -164,7 +164,7 @@ export function DriversPage() {
             label: 'Approved drivers',
             value: drivers.filter((d) => d.verification === 'Approved').length,
             icon: CheckCircle2,
-            color: 'bg-emerald-50 text-emerald-700',
+            color: 'bg-brand-50 text-brand-700',
           },
           {
             label: 'Pending verification',
@@ -201,11 +201,11 @@ export function DriversPage() {
             <button
               key={tab}
               onClick={() => setParams(tab === 'All' ? {} : { status: tab })}
-              className={`mr-6 flex shrink-0 items-center gap-2 border-b-2 py-4 text-sm ${status === tab ? 'border-emerald-700 font-semibold text-emerald-700' : 'border-transparent text-slate-500'}`}
+              className={`mr-6 flex shrink-0 items-center gap-2 border-b-2 py-4 text-sm ${status === tab ? 'border-brand-700 font-semibold text-brand-700' : 'border-transparent text-slate-500'}`}
             >
               {tab === 'All' ? 'All drivers' : tab}
               <span
-                className={`rounded-md px-1.5 py-0.5 text-xs ${status === tab ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}
+                className={`rounded-md px-1.5 py-0.5 text-xs ${status === tab ? 'bg-brand-50 text-brand-700' : 'bg-slate-100 text-slate-500'}`}
               >
                 {
                   drivers.filter((d) => tab === 'All' || d.verification === tab)
@@ -400,7 +400,7 @@ export function DriverDetailPage() {
                     </p>
                   </div>
                   {reviewed.includes(name) && (
-                    <CheckCircle2 size={16} className="text-emerald-600" />
+                    <CheckCircle2 size={16} className="text-brand-600" />
                   )}
                   <Button
                     variant="outline"
@@ -480,7 +480,7 @@ export function DriverDetailPage() {
             SAMPLE ONLY
           </div>
           <div className="relative">
-            <ShieldCheck size={32} className="mb-5 text-emerald-700" />
+            <ShieldCheck size={32} className="mb-5 text-brand-700" />
             <p className="text-sm font-semibold uppercase tracking-widest text-slate-400">
               HopOn document preview
             </p>

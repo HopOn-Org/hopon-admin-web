@@ -35,7 +35,7 @@ export function AuditLogsPage() {
       header: 'Action',
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <span className="rounded-lg bg-emerald-50 p-2 text-emerald-700">
+          <span className="rounded-lg bg-brand-50 p-2 text-brand-700">
             <ShieldCheck size={15} />
           </span>
           <span className="font-medium">{row.original.action}</span>

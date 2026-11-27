@@ -44,7 +44,7 @@ export function PaymentsPage() {
       header: 'Transaction',
       cell: ({ row }) => (
         <button
-          className="text-left font-medium text-emerald-700"
+          className="text-left font-medium text-brand-700"
           onClick={() => setSelected(row.original)}
         >
           TX-{row.original.id.slice(3)}
@@ -66,7 +66,7 @@ export function PaymentsPage() {
       cell: ({ row }) => (
         <Link
           to={`/rides/${row.original.id}`}
-          className="text-slate-500 hover:text-emerald-700"
+          className="text-slate-500 hover:text-brand-700"
         >
           {row.original.id}
         </Link>
@@ -145,7 +145,7 @@ export function PaymentsPage() {
             label: 'Total collected',
             value: completed.reduce((s, r) => s + r.fare, 0),
             icon: Wallet,
-            color: 'bg-emerald-50 text-emerald-700',
+            color: 'bg-brand-50 text-brand-700',
           },
           {
             label: 'Card payments',
@@ -228,7 +228,7 @@ export function PaymentsPage() {
         {selected && (
           <>
             <div className="mb-3 flex flex-col items-center rounded-xl bg-slate-50 p-6">
-              <ReceiptText size={30} className="mb-3 text-emerald-700" />
+              <ReceiptText size={30} className="mb-3 text-brand-700" />
               <p className="text-3xl font-semibold">
                 {money(selected.status === 'Cancelled' ? 0 : selected.fare)}
               </p>
@@ -240,7 +240,7 @@ export function PaymentsPage() {
             </div>
             <dl>
               <DetailItem label="Ride">
-                <Link to={`/rides/${selected.id}`} className="text-emerald-700">
+                <Link to={`/rides/${selected.id}`} className="text-brand-700">
                   {selected.id}
                 </Link>
               </DetailItem>

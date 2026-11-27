@@ -130,7 +130,7 @@ export function AdminLayout() {
         .slice(0, 6)
     : []
   return (
-    <div className="min-h-screen bg-[#f7f9fa]">
+    <div className="min-h-screen bg-[#FFFFFF]">
       {mobileOpen && (
         <button
           className="fixed inset-0 z-30 bg-slate-900/40 lg:hidden"
@@ -144,27 +144,29 @@ export function AdminLayout() {
           onClick={() => setMobileOpen(false)}
           className="flex h-[88px] items-center gap-3 px-7"
         >
-          <img src="/logo.png" alt="HopOn" className="size-[76px] shrink-0 object-contain" />
-          <span className="mt-1 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-slate-500">
+          <img
+            src="/logo.png"
+            alt="HopOn"
+            className="size-[76px] shrink-0 rounded-lg object-contain"
+          />
+          <span className="mt-1 rounded bg-white/10 px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-blue-200">
             ADMIN
           </span>
         </Link>
-        <div className="mx-4 mb-7 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-3">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-emerald-100 text-emerald-800">
+        <div className="mx-4 mb-7 flex items-center gap-3 rounded-lg border border-white/15 bg-white/5 px-3 py-3">
+          <div className="flex size-8 items-center justify-center rounded-lg bg-brand-100 text-brand-800">
             <CarFront size={18} />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold">HopOn Sri Lanka</p>
-            <p className="mt-0.5 text-xs text-slate-500">
-              Operations workspace
-            </p>
+            <p className="mt-0.5 text-xs text-blue-200">Operations workspace</p>
           </div>
           <Badge className="px-1.5 text-xs">Demo</Badge>
         </div>
         <nav className="flex-1 space-y-6 px-4" aria-label="Main navigation">
           {navigation.map((group) => (
             <div key={group.label}>
-              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-[1.5px] text-slate-400">
+              <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-[1.5px] text-blue-200/70">
                 {group.label}
               </p>
               <div className="space-y-1">
@@ -185,7 +187,7 @@ export function AdminLayout() {
                       </span>
                     )}
                     {item.path === '/live-map' && (
-                      <span className="size-1.5 rounded-full bg-emerald-500" />
+                      <span className="size-1.5 rounded-full bg-green-600" />
                     )}
                   </NavLink>
                 ))}
@@ -193,7 +195,7 @@ export function AdminLayout() {
             </div>
           ))}
         </nav>
-        <div className="mt-6 border-t border-slate-100 px-4 py-4">
+        <div className="mt-6 border-t border-white/10 px-4 py-4">
           <NavLink
             to="/settings"
             onClick={() => setMobileOpen(false)}
@@ -222,7 +224,7 @@ export function AdminLayout() {
         </div>
         <Link
           to="/settings"
-          className="mx-4 mb-4 flex items-center gap-3 rounded-lg bg-slate-50 p-3"
+          className="mx-4 mb-4 flex items-center gap-3 rounded-lg bg-white/5 p-3"
         >
           <Avatar
             name={user?.name || settings.name}
@@ -233,9 +235,9 @@ export function AdminLayout() {
             <p className="truncate text-sm font-semibold">
               {user?.name || settings.name}
             </p>
-            <p className="mt-0.5 text-xs text-slate-500">Administrator</p>
+            <p className="mt-0.5 text-xs text-blue-200">Administrator</p>
           </div>
-          <ChevronDown size={14} className="text-slate-400" />
+          <ChevronDown size={14} className="text-blue-200/70" />
         </Link>
       </aside>
       <div className="lg:ml-[244px]">
@@ -274,7 +276,7 @@ export function AdminLayout() {
             </button>
             <span className="hidden h-6 w-px bg-slate-200 sm:block" />
             <span className="hidden items-center gap-1.5 text-sm text-slate-500 xl:flex">
-              <span className="size-1.5 rounded-full bg-emerald-500" />
+              <span className="size-1.5 rounded-full bg-green-600" />
               Demo workspace
             </span>
             <div className="relative" ref={notificationRef}>
@@ -295,7 +297,7 @@ export function AdminLayout() {
                     <h2 className="text-sm font-semibold">Notifications</h2>
                     <button
                       onClick={() => markRead()}
-                      className="text-sm text-emerald-700"
+                      className="text-sm text-brand-700"
                       aria-label="Mark all as read"
                     >
                       <CheckCheck size={17} />
@@ -309,7 +311,7 @@ export function AdminLayout() {
                       }}
                       key={n.id}
                       to={n.link}
-                      className={`block border-b border-slate-100 p-4 hover:bg-slate-50 ${!n.read ? 'bg-emerald-50/40' : ''}`}
+                      className={`block border-b border-slate-100 p-4 hover:bg-slate-50 ${!n.read ? 'bg-brand-50/40' : ''}`}
                     >
                       <p className="text-sm font-semibold">{n.title}</p>
                       <p className="mt-1 text-sm leading-5 text-slate-500">
@@ -321,7 +323,7 @@ export function AdminLayout() {
                   <Link
                     to="/notifications"
                     onClick={() => setNotificationsOpen(false)}
-                    className="block p-3 text-center text-sm font-medium text-emerald-700"
+                    className="block p-3 text-center text-sm font-medium text-brand-700"
                   >
                     View all notifications
                   </Link>
@@ -427,7 +429,7 @@ export function AdminLayout() {
             locally. Changes are saved in this browser. You can restore the
             sample data from Settings.
           </p>
-          <div className="rounded-lg bg-emerald-50 p-4 text-emerald-900">
+          <div className="rounded-lg bg-brand-50 p-4 text-brand-900">
             Sign-in is managed by Keycloak. Fleet and business data remain local
             samples; Google Maps, payment providers, and backend APIs are not
             connected.

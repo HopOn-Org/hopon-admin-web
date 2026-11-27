@@ -1,4 +1,4 @@
-﻿import { useAuthentication } from './authentication-gate'
+import { useAuthentication } from './authentication-gate'
 import { DetailItem, Badge } from '../../components/shared/common'
 
 export function SessionDetails() {
@@ -27,7 +27,7 @@ export function SessionDetails() {
   ]
   return (
     <details className="mt-4 border-t border-slate-100 pt-4">
-      <summary className="cursor-pointer text-sm font-medium text-emerald-700">
+      <summary className="cursor-pointer text-sm font-medium text-brand-700">
         Session details
       </summary>
       <p className="mt-3 text-xs leading-5 text-slate-500">

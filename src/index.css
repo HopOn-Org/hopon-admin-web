@@ -1,6 +1,24 @@
 @import 'tailwindcss';
 
 @theme {
+  --color-brand-50: #eff7ff;
+  --color-brand-100: #d6edff;
+  --color-brand-200: #addbff;
+  --color-brand-300: #72c8ff;
+  --color-brand-400: #00c8f8;
+  --color-brand-500: #2684ff;
+  --color-brand-600: #0866ff;
+  --color-brand-700: #0752d1;
+  --color-brand-800: #073e9e;
+  --color-brand-900: #06265f;
+  --color-brand-950: #041b45;
+  --color-accent: #00c8f8;
+  --color-location: #00a8d6;
+  --color-green-600: #16a34a;
+  --color-amber-600: #d97706;
+  --color-red-600: #dc2626;
+  --color-slate-800: #06265f;
+  --color-slate-900: #06265f;
   --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
 }
 
@@ -11,7 +29,7 @@
   body {
     margin: 0;
     min-width: 360px;
-    color: #1d2939;
+    color: #06265f;
     font-family: var(--font-sans);
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
@@ -29,11 +47,11 @@
     cursor: pointer;
   }
   :focus-visible {
-    outline: 2px solid #118066;
+    outline: 2px solid #0866ff;
   }
   ::selection {
-    background: #cee9dd;
-    color: #075c42;
+    background: #d6edff;
+    color: #06265f;
   }
   input::placeholder,
   textarea::placeholder {
@@ -48,35 +66,35 @@
 
 @layer components {
   .sidebar {
-    @apply fixed top-0 bottom-0 left-0 z-40 flex w-[244px] -translate-x-full flex-col overflow-y-auto border-r border-slate-200 bg-white transition-transform duration-200 lg:translate-x-0;
+    @apply fixed top-0 bottom-0 left-0 z-40 flex w-[244px] -translate-x-full flex-col overflow-y-auto border-r border-brand-800 bg-brand-900 text-white transition-transform duration-200 lg:translate-x-0;
   }
   .sidebar-open {
     @apply translate-x-0;
   }
   .nav-item {
-    @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-50 hover:text-slate-900;
+    @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-blue-100 transition-colors hover:bg-white/10 hover:text-white;
   }
   .nav-item-active {
-    @apply bg-[#eaf5ee] font-semibold text-[#18714f] hover:bg-[#eaf5ee] hover:text-[#18714f];
+    @apply bg-brand-600 font-semibold text-white shadow-sm hover:bg-brand-700 hover:text-white;
   }
   .brand-mark {
     @apply relative block h-8 w-7 -rotate-12;
   }
   .brand-mark span {
-    @apply absolute top-1 block h-7 w-2.5 rounded-full bg-emerald-700;
+    @apply absolute top-1 block h-7 w-2.5 rounded-full bg-brand-700;
   }
   .brand-mark span:last-child {
     @apply top-0 left-4;
   }
   .brand-mark::after {
     content: '';
-    @apply absolute top-[13px] left-1 block h-2 w-5 rounded-full bg-emerald-700;
+    @apply absolute top-[13px] left-1 block h-2 w-5 rounded-full bg-brand-700;
   }
   .input {
-    @apply h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-xs transition-colors focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 focus:outline-none;
+    @apply h-10 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-xs transition-colors focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10 focus:outline-none;
   }
   .select {
-    @apply h-10 appearance-none rounded-lg border border-slate-200 bg-white py-2 pr-9 pl-3 text-sm text-slate-600 shadow-xs focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 focus:outline-none;
+    @apply h-10 appearance-none rounded-lg border border-slate-200 bg-white py-2 pr-9 pl-3 text-sm text-slate-600 shadow-xs focus:border-brand-600 focus:ring-2 focus:ring-brand-600/10 focus:outline-none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='1.7'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
@@ -113,16 +131,23 @@
     @apply py-3.5;
   }
   .map-marker {
-    @apply absolute z-10 flex size-8 items-center justify-center rounded-lg border-2 border-white bg-[#16805e] text-white shadow-md transition-colors hover:z-20 hover:bg-emerald-900 focus-visible:z-20;
+    @apply absolute z-10 flex size-8 items-center justify-center rounded-lg border-2 border-white bg-location text-white shadow-md transition-colors hover:z-20 hover:bg-brand-600 focus-visible:z-20;
   }
   .map-marker-busy {
-    @apply bg-[#dc9c39] hover:bg-amber-700;
+    @apply bg-amber-600 hover:bg-amber-700;
+  }
+  .map-marker::after {
+    content: '';
+    @apply absolute -right-1 -bottom-1 size-2.5 rounded-full border-2 border-white bg-green-600;
+  }
+  .map-marker-busy::after {
+    @apply bg-amber-600;
   }
   .map-marker-selected {
-    @apply z-20 outline-4 outline-offset-4 outline-emerald-500/40;
+    @apply z-20 outline-4 outline-offset-4 outline-brand-500/40;
   }
   .toggle {
-    @apply relative h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-slate-200 transition-colors checked:bg-emerald-700;
+    @apply relative h-6 w-11 shrink-0 cursor-pointer appearance-none rounded-full bg-slate-200 transition-colors checked:bg-brand-600;
   }
   .toggle::after {
     content: '';
