@@ -35,8 +35,10 @@ import {
 } from '../../components/shared/common'
 import { Button } from '../../components/ui/button'
 import { OperationsMap } from '../live-map/operations-map'
+import { useAuthentication } from '../auth/authentication-gate'
 
 export function DashboardPage() {
+  const { user } = useAuthentication()
   const { drivers, passengers, rides, audit, settings } = useStore()
   const notify = useUI((s) => s.notify)
   const [period, setPeriod] = useState('This week')
@@ -108,7 +110,7 @@ export function DashboardPage() {
   return (
     <>
       <PageHeading
-        title={`Good afternoon, ${settings.name.split(' ')[0]} 👋`}
+        title={`Good afternoon, ${user?.givenName || user?.name.split(' ')[0] || settings.name.split(' ')[0]} 👋`}
         description="Here's what's happening with your operations today."
         actions={
           <>

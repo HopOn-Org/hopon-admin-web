@@ -147,31 +147,37 @@ test('map filters, transaction details and CSV exports work locally', async ({
   expect(remoteRequests).toEqual([])
 })
 
-test('settings validate and persist, and reset restores initial data', async ({
+test('settings show Keycloak identity and save only local preferences', async ({
   page,
 }) => {
   await page.goto('/settings')
-  await page.getByRole('textbox', { name: 'Full name' }).fill('A')
-  await page.getByRole('button', { name: 'Save changes' }).click()
-  await expect(page.getByRole('alert')).toContainText(
-    'Enter at least 2 characters',
+  await expect(page.getByRole('textbox', { name: 'Full name' })).toHaveValue(
+    'Alex Morgan',
   )
-  await page.getByRole('textbox', { name: 'Full name' }).fill('Sam Perera')
+  await expect(
+    page.getByRole('textbox', { name: 'Full name' }),
+  ).toHaveAttribute('readonly', '')
+  await expect(
+    page.getByRole('textbox', { name: 'Email address' }),
+  ).toHaveValue('alex@example.com')
+  await page.getByRole('combobox', { name: 'Time zone' }).selectOption('UTC')
   await page.getByRole('button', { name: 'Save changes' }).click()
   await page.reload()
-  await expect(page.getByRole('textbox', { name: 'Full name' })).toHaveValue(
-    'Sam Perera',
+  await expect(page.getByRole('combobox', { name: 'Time zone' })).toHaveValue(
+    'UTC',
   )
   await page.getByRole('button', { name: 'Reset demo', exact: true }).click()
   await page
     .getByRole('dialog')
     .getByRole('button', { name: 'Reset demo data' })
     .click()
+  await expect(page.getByRole('combobox', { name: 'Time zone' })).toHaveValue(
+    'Asia/Colombo',
+  )
   await expect(page.getByRole('textbox', { name: 'Full name' })).toHaveValue(
     'Alex Morgan',
   )
 })
-
 test('mobile navigation and all pages stay within the viewport', async ({
   page,
 }) => {

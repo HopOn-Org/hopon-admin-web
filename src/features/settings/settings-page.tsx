@@ -20,14 +20,9 @@ import {
 } from '../../components/shared/common'
 import { Button } from '../../components/ui/button'
 import { useAuthentication } from '../auth/authentication-gate'
+import { SessionDetails } from '../auth/session-details'
 
 const schema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, 'Enter at least 2 characters.')
-    .max(60, 'Use at most 60 characters.'),
-  email: z.email('Enter a valid email address.'),
   timezone: z.string(),
   emailAlerts: z.boolean(),
   approvalAlerts: z.boolean(),
@@ -42,7 +37,7 @@ export function SettingsPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isDirty },
+    formState: { isDirty },
     reset: resetForm,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -56,7 +51,7 @@ export function SettingsPage() {
       />
       <form
         onSubmit={handleSubmit((values) => {
-          saveSettings(values)
+          saveSettings({ ...settings, ...values })
           resetForm(values)
           notify('Preferences saved')
         })}
@@ -66,15 +61,19 @@ export function SettingsPage() {
           <Card>
             <CardHeading
               title="Profile details"
-              description="Your administrator profile in this demo workspace"
+              description="Identity from your current Keycloak access token"
             />
             <div className="space-y-5 px-5 pb-6">
               <div className="flex items-center gap-4 border-b border-slate-100 pb-5">
-                <Avatar name={settings.name} size="lg" />
+                <Avatar name={user?.name || 'Administrator'} size="lg" />
                 <div>
-                  <p className="text-sm font-semibold">{settings.name}</p>
+                  <p className="text-sm font-semibold">
+                    {user?.name || 'Administrator'}
+                  </p>
                   <p className="mt-1 text-sm text-slate-500">
-                    Workspace administrator
+                    {user?.username
+                      ? '@' + user.username
+                      : 'Workspace administrator'}
                   </p>
                 </div>
               </div>
@@ -83,33 +82,19 @@ export function SettingsPage() {
                   Full name
                   <input
                     className="input mt-2"
-                    {...register('name')}
+                    value={user?.name || ''}
+                    readOnly
                     autoComplete="name"
                   />
-                  {errors.name && (
-                    <span
-                      role="alert"
-                      className="mt-1 block text-sm text-red-600"
-                    >
-                      {errors.name.message}
-                    </span>
-                  )}
                 </label>
                 <label className="field-label">
                   Email address
                   <input
                     className="input mt-2"
-                    {...register('email')}
+                    value={user?.email || ''}
+                    readOnly
                     autoComplete="email"
                   />
-                  {errors.email && (
-                    <span
-                      role="alert"
-                      className="mt-1 block text-sm text-red-600"
-                    >
-                      {errors.email.message}
-                    </span>
-                  )}
                 </label>
               </div>
               <label className="field-label block">
@@ -128,8 +113,9 @@ export function SettingsPage() {
                 </select>
               </label>
               <p className="text-sm text-slate-400">
-                Your preference is saved locally. Operational timestamps use
-                Asia/Colombo for consistency.
+                Name and email are managed in Keycloak and cannot be edited
+                here. Your time zone preference is saved locally. Operational
+                timestamps use Asia/Colombo for consistency.
               </p>
             </div>
           </Card>
@@ -205,7 +191,9 @@ export function SettingsPage() {
                 <UserRound size={17} className="mt-0.5 text-slate-400" />
                 <div>
                   <p className="text-sm text-slate-500">Role</p>
-                  <p className="mt-1 text-sm font-medium">Administrator</p>
+                  <p className="mt-1 text-sm font-medium">
+                    {user?.roles.join(', ') || 'Administrator'}
+                  </p>
                 </div>
               </div>
               <div className="flex gap-3">
@@ -215,7 +203,7 @@ export function SettingsPage() {
                   <p className="mt-1 text-sm font-medium">Keycloak session</p>
                   <p className="mt-1 text-sm leading-5 text-slate-400">
                     Signed in as {user?.username || user?.name}. Realm role:
-                    ADMIN.
+                    {user?.roles.join(', ')}.
                   </p>
                 </div>
               </div>
@@ -229,6 +217,13 @@ export function SettingsPage() {
                 </div>
               </div>
             </div>
+          </Card>
+          <Card className="p-5">
+            <h2 className="text-base font-semibold">Authenticated session</h2>
+            <p className="mt-2 text-sm text-slate-500">
+              Email status: {user?.emailVerified ? 'Verified' : 'Unverified'}
+            </p>
+            <SessionDetails />
           </Card>
           <Card className="border-amber-200 bg-amber-50/40">
             <CardHeading

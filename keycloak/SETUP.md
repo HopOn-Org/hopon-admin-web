@@ -23,7 +23,7 @@ Open the Keycloak Admin Console, select **hopon**, then **Clients → hopon-admi
 | Web origins                                                  | `https://hopon-admin-web.vercel.app`   |
 | Advanced → Proof Key for Code Exchange Code Challenge Method | **S256**                               |
 
-Keep the default `roles`, `profile`, `email`, and `web-origins` client scopes assigned. The access token must include the **realm** role `ADMIN` in `realm_access.roles`. A client role named ADMIN alone will not pass this app's check.
+Keep the default `roles`, `profile`, `email`, and `web-origins` client scopes assigned. The access token must include the **realm** role `ADMIN` or `SUPER_ADMIN` in `realm_access.roles`. Client roles named ADMIN or SUPER_ADMIN alone will not pass this app's check.
 
 For a new client, [hopon-admin-web.client.json](./hopon-admin-web.client.json) is an importable configuration for the Vercel deployment. For an existing client, review/apply the settings above instead of attempting to import a duplicate client ID. No secrets are required or included.
 
@@ -31,8 +31,8 @@ Use https://hopon-admin-web.vercel.app/ to sign in. This client configuration al
 
 ## 2. Administrator role and MFA
 
-1. In **Realm roles**, create `ADMIN` if it does not already exist.
-2. Create or select your administrator user. In **Role mapping**, assign the realm role `ADMIN` (directly or through your admin group).
+1. In **Realm roles**, create `ADMIN` and/or `SUPER_ADMIN` if needed.
+2. Create or select your administrator user. In **Role mapping**, assign the realm role `ADMIN` or `SUPER_ADMIN` (directly or through your admin group).
 3. Set the user's initial password through Keycloak's Credentials screen; do not put credentials in the frontend repository.
 4. Assign the **Configure OTP** required action for that administrator. Verify that the realm's existing browser authentication flow supports OTP and that subsequent sign-ins enforce the intended MFA behavior. Do not change shared browser authentication flows without checking their effect on existing mobile clients.
 
@@ -48,8 +48,8 @@ npm run build
 In the Vercel project, use the Vite framework preset, build command `npm run build`, and output directory `dist`. Set the public `VITE_KEYCLOAK_*` values from `.env.example` in Vercel's environment settings and redeploy after changes. Never add a client secret. The application uses the current browser origin for its login callback and logout return URL, so the deployed app returns to this Vercel domain.
 
 - Open https://hopon-admin-web.vercel.app: the app redirects to Keycloak using Authorization Code + PKCE S256.
-- Sign in with an ADMIN user: the requested app route opens after initialization succeeds.
-- Sign in with a passenger/driver without ADMIN: only Access denied and Sign out are available.
+- Sign in with an ADMIN or SUPER_ADMIN user: the requested app route opens after initialization succeeds.
+- Sign in with a passenger/driver without either ADMIN or SUPER_ADMIN: only Access denied and Sign out are available.
 - Sign out: the adapter ends the Keycloak session and returns to the app origin, where login is required again.
 - With an expired/revoked refresh session, the app hides the workspace and asks the user to sign in again.
 
@@ -59,12 +59,23 @@ The app checks for refresh every 10 seconds with `updateToken(30)`, on token exp
 
 ## 4. Future API integration
 
-`getAccessToken()` in `src/lib/keycloak/authentication.ts` refreshes the current session, checks ADMIN again, and returns the current in-memory access token for a future Bearer header. No sample API URL is called, and no Go endpoint was created.
+`getAccessToken()` in `src/lib/keycloak/authentication.ts` refreshes the current session, checks ADMIN or SUPER_ADMIN again, and returns the current in-memory access token for a future Bearer header. No sample API URL is called, and no Go endpoint was created.
 
-Backend authorization remains a separate step: validate signature using JWKS, issuer, expiration, the intended API audience, and ADMIN. Add a dedicated API audience mapper when the Go API's audience is defined. The SPA client ID alone does not establish that audience.
+Backend authorization remains a separate step: validate signature using JWKS, issuer, expiration, the intended API audience, and an allowed administrator role. Add a dedicated API audience mapper when the Go API's audience is defined. The SPA client ID alone does not establish that audience.
 
 ## Automated verification
 
 `npm test` covers PKCE redirect parameters, callback/deep links, non-admin denial, logout, refresh success/failure, role removal, token storage, and existing UI workflows. Tests intercept the auth server at the browser network layer and run the real adapter; there is no production auth bypass. Passing these tests does not establish that the remote client or MFA is configured correctly. A real-user sign-in is still needed after correcting the server settings.
 
 Reference: [Keycloak JavaScript adapter documentation](https://www.keycloak.org/securing-apps/javascript-adapter).
+
+## Access-token identity and session claims
+
+The app uses `keycloak.tokenParsed`, which the adapter decodes from the current access token. It does not use a hardcoded profile or require a separate profile API. The sidebar, dashboard greeting, Settings identity, and new audit actions use this authenticated identity.
+
+- `sub`, `name`, `preferred_username`, `given_name`, `family_name`, `email`, `email_verified`, and `realm_access.roles` populate the in-memory administrator profile.
+- `iss`, `aud` (string or array), `azp`, `sid`, `jti`, `typ`, `iat`, `exp`, `auth_time`, `acr`, `scope`, and `allowed-origins` populate the expandable Settings session details. Epoch timestamps display in Asia/Colombo; `acr` is displayed as supplied, without inferring MFA enrollment.
+- Profile name/email are read-only because Keycloak owns them. Local preferences and demo resets do not change the authenticated profile. An unverified email is displayed as such and does not override the ADMIN/SUPER_ADMIN authorization rule.
+- Refreshing the access token updates the identity, roles, and session metadata. These claims are held in memory, not copied to persisted demo state. A token's `aud` may be `hopon-identity-api` while its authorized client (`azp`) is `hopon-admin-web`; the app does not confuse these two claims.
+
+Displaying decoded claims is not server-side token verification. Backend validation remains the separate step described above.

@@ -12,6 +12,8 @@ export async function mockKeycloak(
     failRefresh?: boolean
     refreshedRoles?: string[]
     holdLogin?: boolean
+    claims?: Record<string, unknown>
+    refreshedClaims?: Record<string, unknown>
   } = {},
 ) {
   let nonce = ''
@@ -70,7 +72,7 @@ export async function mockKeycloak(
       const claims = {
         iss: issuer,
         sub: 'test-admin-subject',
-        aud: 'hopon-admin-web',
+        aud: 'hopon-identity-api',
         azp: 'hopon-admin-web',
         iat: now,
         exp: now + (refresh ? 300 : (options.expiresIn ?? 300)),
@@ -78,11 +80,23 @@ export async function mockKeycloak(
         preferred_username: 'alex.admin',
         email: 'alex@example.com',
         session_state: 'test-session',
+        given_name: 'Alex',
+        family_name: 'Morgan',
+        email_verified: false,
+        auth_time: now - 2,
+        sid: 'test-session',
+        jti: 'test-token-id',
+        typ: 'Bearer',
+        acr: '1',
+        scope: 'openid profile email',
+        'allowed-origins': ['https://hopon-admin-web.vercel.app'],
         realm_access: {
           roles: refresh
             ? (options.refreshedRoles ?? options.roles ?? ['ADMIN'])
             : (options.roles ?? ['ADMIN']),
         },
+        ...options.claims,
+        ...(refresh ? options.refreshedClaims : {}),
       }
       await route.fulfill({
         headers,

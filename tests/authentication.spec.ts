@@ -1,6 +1,96 @@
 import { test, expect } from '@playwright/test'
 import { mockKeycloak, authOrigin } from './keycloak-mock'
 
+test('SUPER_ADMIN alone can access the workspace and retain access after refresh', async ({
+  page,
+}) => {
+  await page.clock.install()
+  const requests = await mockKeycloak(page, {
+    roles: ['SUPER_ADMIN'],
+    expiresIn: 20,
+  })
+  await page.goto('/settings')
+  await expect(
+    page.getByRole('heading', { name: 'Settings', exact: true }),
+  ).toBeVisible()
+  await expect(page.getByRole('navigation')).toBeVisible()
+  await page.clock.fastForward(11_000)
+  await expect.poll(() => requests.refreshes).toBe(1)
+  await expect(page.getByRole('navigation')).toBeVisible()
+})
+
+test('changing ADMIN to SUPER_ADMIN during refresh retains access', async ({
+  page,
+}) => {
+  await page.clock.install()
+  await mockKeycloak(page, {
+    roles: ['ADMIN'],
+    expiresIn: 20,
+    refreshedRoles: ['SUPER_ADMIN'],
+  })
+  await page.goto('/dashboard')
+  await expect(page.getByRole('navigation')).toBeVisible()
+  await page.clock.fastForward(11_000)
+  await expect(page.getByRole('navigation')).toBeVisible()
+  await expect
+    .poll(async () =>
+      page.getByRole('heading', { name: 'Access denied' }).count(),
+    )
+    .toBe(0)
+})
+
+test('uses access-token identity and session claims and updates them after refresh', async ({
+  page,
+}) => {
+  await page.clock.install()
+  await mockKeycloak(page, {
+    expiresIn: 20,
+    claims: {
+      name: 'Sample Administrator',
+      given_name: 'Sample',
+      family_name: 'Administrator',
+      preferred_username: 'sample.admin',
+      email: 'sample@example.com',
+    },
+    refreshedClaims: {
+      name: 'Updated Administrator',
+      given_name: 'Updated',
+      email_verified: true,
+    },
+  })
+  await page.goto('/dashboard')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(
+    'Good afternoon, Sample',
+  )
+  await page.goto('/settings')
+  await expect(page.getByRole('textbox', { name: 'Full name' })).toHaveValue(
+    'Sample Administrator',
+  )
+  await expect(
+    page.getByRole('textbox', { name: 'Email address' }),
+  ).toHaveValue('sample@example.com')
+  await expect(
+    page.getByText('Email status: Unverified', { exact: true }),
+  ).toBeVisible()
+  await page.getByText('Session details', { exact: true }).click()
+  await expect(
+    page.getByRole('definition').filter({ hasText: 'hopon-identity-api' }),
+  ).toBeVisible()
+  await expect(page.getByText('test-token-id', { exact: true })).toBeVisible()
+  await page.clock.fastForward(11_000)
+  await expect(page.getByRole('textbox', { name: 'Full name' })).toHaveValue(
+    'Updated Administrator',
+  )
+  await expect(
+    page.getByText('Email status: Verified', { exact: true }),
+  ).toBeVisible()
+  const storage = await page.evaluate(() =>
+    JSON.stringify({ ...localStorage, ...sessionStorage }),
+  )
+  expect(storage).not.toContain('sample@example.com')
+  expect(storage).not.toContain('test-token-id')
+})
+
 test('redirects to hosted login with public code flow and S256 PKCE', async ({
   page,
 }) => {

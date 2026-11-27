@@ -40,9 +40,9 @@ Playwright uses installed Google Chrome. It starts a local Vite server or reuses
 | `/reports`                | Date-based revenue/ride charts, vehicle/payment breakdowns, CSV report                           |
 | `/audit-logs`             | Action history, search, category filters, detail dialogs, CSV export                             |
 | `/notifications`          | Read/unread notifications and links to related screens                                           |
-| `/settings`               | Validated profile form, preferences, reset demo data                                             |
+| `/settings`               | Read-only Keycloak profile, session claims, preferences, reset demo data                         |
 
-The app requires Keycloak sign-in and the ADMIN realm role before rendering the workspace. Read [Keycloak setup](keycloak/SETUP.md) to configure the public SPA client, allowed redirect/origin settings, and administrator MFA. The default auth server is https://hopon-auth.duckdns.org (realm hopon, client hopon-admin-web).
+The app requires Keycloak sign-in and an ADMIN or SUPER_ADMIN realm role before rendering the workspace. Read [Keycloak setup](keycloak/SETUP.md) to configure the public SPA client, allowed redirect/origin settings, and administrator MFA. The default auth server is https://hopon-auth.duckdns.org (realm hopon, client hopon-admin-web).
 
 ## Local behavior
 

@@ -7,13 +7,32 @@ export interface AuthUser {
   name: string
   username: string
   email?: string
+  givenName?: string
+  familyName?: string
+  emailVerified: boolean
+  roles: string[]
+}
+export interface AuthSession {
+  issuer?: string
+  audience: string[]
+  authorizedParty?: string
+  sessionId?: string
+  tokenId?: string
+  tokenType?: string
+  issuedAt?: number
+  expiresAt?: number
+  authenticatedAt?: number
+  authenticationContext?: string
+  scopes: string[]
+  allowedOrigins: string[]
 }
 export interface AuthState {
   status: AuthStatus
   user: AuthUser | null
+  session: AuthSession | null
 }
 
-let state: AuthState = { status: 'loading', user: null }
+let state: AuthState = { status: 'loading', user: null, session: null }
 const listeners = new Set<() => void>()
 let initialization: Promise<boolean> | undefined
 let refreshTimer: ReturnType<typeof setInterval> | undefined
@@ -30,17 +49,52 @@ export function subscribeAuthentication(listener: () => void) {
 }
 function publish(status: AuthStatus) {
   const claims = keycloak.tokenParsed
+  const visible = claims && ['authenticated', 'denied'].includes(status)
+  const strings = (value: unknown): string[] =>
+    Array.isArray(value)
+      ? value.filter((item): item is string => typeof item === 'string')
+      : []
+  const text = (value: unknown) =>
+    typeof value === 'string' ? value : undefined
+  const timestamp = (value: unknown) =>
+    typeof value === 'number' && Number.isFinite(value) ? value : undefined
   state = {
     status,
-    user:
-      claims && ['authenticated', 'denied'].includes(status)
-        ? {
-            subject: claims.sub || '',
-            name: claims.name || claims.preferred_username || 'Administrator',
-            username: claims.preferred_username || '',
-            email: claims.email,
-          }
-        : null,
+    user: visible
+      ? {
+          subject: text(claims.sub) || '',
+          name:
+            text(claims.name) ||
+            [text(claims.given_name), text(claims.family_name)]
+              .filter(Boolean)
+              .join(' ') ||
+            text(claims.preferred_username) ||
+            'Administrator',
+          username: text(claims.preferred_username) || '',
+          email: text(claims.email),
+          givenName: text(claims.given_name),
+          familyName: text(claims.family_name),
+          emailVerified: claims.email_verified === true,
+          roles: strings(claims.realm_access?.roles),
+        }
+      : null,
+    session: visible
+      ? {
+          issuer: text(claims.iss),
+          audience:
+            typeof claims.aud === 'string' ? [claims.aud] : strings(claims.aud),
+          authorizedParty: text(claims.azp),
+          sessionId: text(claims.sid) || text(claims.session_state),
+          tokenId: text(claims.jti),
+          tokenType: text(claims.typ),
+          issuedAt: timestamp(claims.iat),
+          expiresAt: timestamp(claims.exp),
+          authenticatedAt: timestamp(claims.auth_time),
+          authenticationContext: text(claims.acr),
+          scopes: (text(claims.scope) || '').split(/\s+/).filter(Boolean),
+          allowedOrigins: strings(claims['allowed-origins']),
+        }
+      : null,
   }
   listeners.forEach((listener) => listener())
 }
@@ -54,9 +108,8 @@ function applyAuthorization() {
     stopRefresh()
     return false
   }
-  const allowed = (keycloak.tokenParsed?.realm_access?.roles ?? []).includes(
-    'ADMIN',
-  )
+  const roles = keycloak.tokenParsed?.realm_access?.roles ?? []
+  const allowed = roles.includes('ADMIN') || roles.includes('SUPER_ADMIN')
   publish(allowed ? 'authenticated' : 'denied')
   if (!allowed) stopRefresh()
   return allowed
@@ -153,7 +206,7 @@ export async function logout() {
   }
 }
 
-/** Refresh and recheck ADMIN before a future authenticated API request.
+/** Refresh and recheck ADMIN or SUPER_ADMIN before a future authenticated API request.
  * Returns the current in-memory token; does not make an application API call.
  */
 export async function getAccessToken(): Promise<string> {

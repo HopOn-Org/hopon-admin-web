@@ -61,7 +61,7 @@ export function AuthenticationGate({ children }: { children: ReactNode }) {
         </h1>
         <p className="mt-3 text-sm leading-6 text-slate-500">
           {denied
-            ? `${user?.name || 'Your account'} does not have the ADMIN realm role required to access this workspace. Contact your Keycloak administrator or sign out to use a different account.`
+            ? `${user?.name || 'Your account'} does not have the ADMIN or SUPER_ADMIN realm role required to access this workspace. Contact your Keycloak administrator or sign out to use a different account.`
             : failed
               ? 'Authentication could not be completed. Check your connection and the Keycloak client configuration, then try again.'
               : status === 'expired'
