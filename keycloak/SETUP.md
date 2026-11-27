@@ -53,13 +53,13 @@ In the Vercel project, use the Vite framework preset, build command `npm run bui
 - Sign out: the adapter ends the Keycloak session and returns to the app origin, where login is required again.
 - With an expired/revoked refresh session, the app hides the workspace and asks the user to sign in again.
 
-The adapter initializes once outside React effects. Access/refresh/ID tokens remain in adapter memory; they are never saved in application localStorage, sessionStorage, Zustand, or cookies. Keycloak may use transient callback storage for OAuth state, nonce, and PKCE verification. The sample business dataset remains in localStorage separately.
+The adapter initializes once outside React effects. Access/refresh/ID tokens remain in adapter memory; they are never saved in application localStorage, sessionStorage, Zustand, or cookies. Keycloak may use transient callback storage for OAuth state, nonce, and PKCE verification. The sample business dataset remains in localStorage separately; the authenticated profile is fetched into memory.
 
 The app checks for refresh every 10 seconds with `updateToken(30)`, on token expiry, and when the tab becomes active. The adapter only calls the token endpoint when a refresh is necessary. Refreshed roles are checked again. Because `checkLoginIframe` is disabled, remote logout/revocation is observed when a token refresh fails, rather than through iframe polling.
 
 ## 4. Future API integration
 
-`getAccessToken()` in `src/lib/keycloak/authentication.ts` refreshes the current session, checks ADMIN or SUPER_ADMIN again, and returns the current in-memory access token for a future Bearer header. No sample API URL is called, and no Go endpoint was created.
+`getAccessToken()` in `src/lib/keycloak/authentication.ts` refreshes the current session, checks ADMIN or SUPER_ADMIN again, and returns the current in-memory access token for a future Bearer header. The Identity Service profile is the only application API called; no Go endpoint was created.
 
 Backend authorization remains a separate step: validate signature using JWKS, issuer, expiration, the intended API audience, and an allowed administrator role. Add a dedicated API audience mapper when the Go API's audience is defined. The SPA client ID alone does not establish that audience.
 
@@ -69,13 +69,18 @@ Backend authorization remains a separate step: validate signature using JWKS, is
 
 Reference: [Keycloak JavaScript adapter documentation](https://www.keycloak.org/securing-apps/javascript-adapter).
 
-## Access-token identity and session claims
+## Identity Service profile
 
-The app uses `keycloak.tokenParsed`, which the adapter decodes from the current access token. It does not use a hardcoded profile or require a separate profile API. The sidebar, dashboard greeting, Settings identity, and new audit actions use this authenticated identity.
+After Keycloak grants ADMIN or SUPER_ADMIN access, the app calls `GET /api/v1/users/me` at `VITE_IDENTITY_API_URL` (default: `/identity-api`). The request calls `getAccessToken()` first, then sends `Authorization: Bearer <current token>` and `Accept: application/json`. It never uses a token copied into source code or environment files.
 
-- `sub`, `name`, `preferred_username`, `given_name`, `family_name`, `email`, `email_verified`, and `realm_access.roles` populate the in-memory administrator profile.
-- `iss`, `aud` (string or array), `azp`, `sid`, `jti`, `typ`, `iat`, `exp`, `auth_time`, `acr`, `scope`, and `allowed-origins` populate the expandable Settings session details. Epoch timestamps display in Asia/Colombo; `acr` is displayed as supplied, without inferring MFA enrollment.
-- Profile name/email are read-only because Keycloak owns them. Local preferences and demo resets do not change the authenticated profile. An unverified email is displayed as such and does not override the ADMIN/SUPER_ADMIN authorization rule.
-- Refreshing the access token updates the identity, roles, and session metadata. These claims are held in memory, not copied to persisted demo state. A token's `aud` may be `hopon-identity-api` while its authorized client (`azp`) is `hopon-admin-web`; the app does not confuse these two claims.
+The response supplies the account ID, Keycloak subject, first/last name, email, phone, phone-verification timestamp, status, and profile photo. These details populate the header/sidebar, greeting, read-only Settings profile, and audit actor name. Username, realm roles, email-verification claim, and session metadata still come from Keycloak. Token refresh does not overwrite the API profile. The returned subject must match the signed-in subject and the account must be ACTIVE.
 
-Displaying decoded claims is not server-side token verification. Backend validation remains the separate step described above.
+The workspace waits for the profile to load. Network/server errors and invalid responses show a retry screen; a 401 ends the local session, and a 403 or inactive account shows Access denied. Tokens and profile data remain in memory. Profile images use the supplied URL with an initials fallback. The rest of the fleet/business dataset remains local demo data.
+
+Set `VITE_IDENTITY_API_URL` in Vercel and rebuild if you need to change the API host. The default uses a same-origin Vercel rewrite to the existing Identity Service, so browser CORS is not needed. A direct API URL override requires service-side CORS. No backend endpoint was created or modified.
+
+Session details and authorization use the adapter-decoded access-token claims. Issuer, audience, client, session/token IDs, token type, scopes, authentication context, allowed origins, and issue/expiry/authentication timestamps remain available in Settings. Epoch times display in Asia/Colombo; acr is displayed without inferring MFA enrollment.
+
+### Current CORS verification
+
+A credential-free preflight request to `/api/v1/users/me` with `Origin: https://hopon-admin-web.vercel.app`, method GET, and requested header Authorization returned HTTP 405 without Access-Control-Allow-Origin during implementation. Browser integration requires the service to handle OPTIONS and return appropriate CORS headers for that origin, GET, and Authorization (including on error responses). The included Vercel rewrite avoids this cross-origin browser request by proxying only the existing profile endpoint. Vite has the matching development proxy. Set `VITE_IDENTITY_API_URL=/identity-api` in Vercel and redeploy to enable it. No backend handler was added. The supplied example bearer token was not saved or used.

@@ -52,13 +52,16 @@ export function Badge({
 }
 export function Avatar({
   name,
+  src,
   size = 'md',
   index = 0,
 }: {
   name: string
+  src?: string | null
   size?: 'sm' | 'md' | 'lg'
   index?: number
 }) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null)
   const colors = [
     'bg-orange-100 text-orange-800',
     'bg-indigo-100 text-indigo-700',
@@ -78,7 +81,17 @@ export function Avatar({
         colors[index % colors.length],
       )}
     >
-      {initials(name)}
+      {src && src !== failedSrc && /^https?:\/\//i.test(src) ? (
+        <img
+          src={src}
+          alt=""
+          referrerPolicy="no-referrer"
+          onError={() => setFailedSrc(src)}
+          className="h-full w-full rounded-full object-cover"
+        />
+      ) : (
+        initials(name)
+      )}
     </div>
   )
 }

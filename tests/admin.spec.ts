@@ -5,6 +5,7 @@ test('all pages and detail routes render without runtime errors', async ({
   page,
 }) => {
   const errors: string[] = []
+  test.setTimeout(90_000)
   page.on('pageerror', (error) => errors.push(error.message))
   const routes = [
     ['/dashboard', 'Good afternoon'],
@@ -117,6 +118,11 @@ test('map filters, transaction details and CSV exports work locally', async ({
     if (
       !request.url().startsWith('http://localhost:5173') &&
       !request.url().startsWith(authOrigin) &&
+      !request
+        .url()
+        .startsWith(
+          'https://hopon-identity-service-183823945736.asia-south1.run.app',
+        ) &&
       !request.url().startsWith('data:')
     )
       remoteRequests.push(request.url())

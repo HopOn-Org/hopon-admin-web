@@ -1,4 +1,5 @@
 import { keycloak } from './keycloak'
+import { identityApiUrl, profileSchema, type IdentityProfile } from './profile'
 
 export type AuthStatus =
   'loading' | 'authenticated' | 'denied' | 'expired' | 'error' | 'redirecting'
@@ -11,6 +12,11 @@ export interface AuthUser {
   familyName?: string
   emailVerified: boolean
   roles: string[]
+  id?: string
+  phoneNumber?: string | null
+  phoneVerifiedAt?: string | null
+  accountStatus?: string
+  photoUrl?: string | null
 }
 export interface AuthSession {
   issuer?: string
@@ -30,9 +36,18 @@ export interface AuthState {
   status: AuthStatus
   user: AuthUser | null
   session: AuthSession | null
+  profileStatus: 'idle' | 'loading' | 'ready' | 'error'
 }
 
-let state: AuthState = { status: 'loading', user: null, session: null }
+let state: AuthState = {
+  status: 'loading',
+  user: null,
+  session: null,
+  profileStatus: 'idle',
+}
+let profile: IdentityProfile | null = null
+let profileRequest: AbortController | undefined
+let profilePromise: Promise<void> | undefined
 const listeners = new Set<() => void>()
 let initialization: Promise<boolean> | undefined
 let refreshTimer: ReturnType<typeof setInterval> | undefined
@@ -50,6 +65,10 @@ export function subscribeAuthentication(listener: () => void) {
 function publish(status: AuthStatus) {
   const claims = keycloak.tokenParsed
   const visible = claims && ['authenticated', 'denied'].includes(status)
+  if (status !== 'authenticated') {
+    profile = null
+    profileRequest?.abort()
+  }
   const strings = (value: unknown): string[] =>
     Array.isArray(value)
       ? value.filter((item): item is string => typeof item === 'string')
@@ -60,6 +79,7 @@ function publish(status: AuthStatus) {
     typeof value === 'number' && Number.isFinite(value) ? value : undefined
   state = {
     status,
+    profileStatus: status === 'authenticated' ? state.profileStatus : 'idle',
     user: visible
       ? {
           subject: text(claims.sub) || '',
@@ -76,6 +96,24 @@ function publish(status: AuthStatus) {
           familyName: text(claims.family_name),
           emailVerified: claims.email_verified === true,
           roles: strings(claims.realm_access?.roles),
+          ...(profile
+            ? {
+                id: profile.id,
+                name:
+                  [profile.first_name, profile.last_name]
+                    .filter(Boolean)
+                    .join(' ') ||
+                  text(claims.preferred_username) ||
+                  'Administrator',
+                givenName: profile.first_name || undefined,
+                familyName: profile.last_name || undefined,
+                email: profile.email || undefined,
+                phoneNumber: profile.phone_number,
+                phoneVerifiedAt: profile.phone_verified_at,
+                accountStatus: profile.status,
+                photoUrl: profile.profile_photo_url,
+              }
+            : {}),
         }
       : null,
     session: visible
@@ -222,4 +260,60 @@ export async function getAccessToken(): Promise<string> {
     throw new Error('Administrator session is no longer valid')
   }
   return keycloak.token
+}
+
+/** Load the signed-in user's Identity Service profile using a fresh token. */
+export function loadCurrentUser(): Promise<void> {
+  if (profilePromise) return profilePromise
+  const controller = new AbortController()
+  profileRequest = controller
+  state = { ...state, profileStatus: 'loading' }
+  listeners.forEach((listener) => listener())
+  profilePromise = (async () => {
+    try {
+      const token = await getAccessToken()
+      const subject = keycloak.tokenParsed?.sub
+      const response = await fetch(`${identityApiUrl}/api/v1/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+        signal: controller.signal,
+        cache: 'no-store',
+        credentials: 'omit',
+        redirect: 'error',
+      })
+      if (controller.signal.aborted || state.status !== 'authenticated') return
+      if (response.status === 401) {
+        await expireSession()
+        return
+      }
+      if (response.status === 403) {
+        publish('denied')
+        stopRefresh()
+        return
+      }
+      if (!response.ok) throw new Error('Profile request failed')
+      const result = profileSchema.parse(await response.json())
+      if (controller.signal.aborted || state.status !== 'authenticated') return
+      if (result.keycloak_user_id !== subject)
+        throw new Error('Profile identity mismatch')
+      if (result.status !== 'ACTIVE') {
+        publish('denied')
+        stopRefresh()
+        return
+      }
+      profile = result
+      state = { ...state, profileStatus: 'ready' }
+      publish('authenticated')
+    } catch {
+      if (controller.signal.aborted || state.status !== 'authenticated') return
+      state = { ...state, profileStatus: 'error' }
+      listeners.forEach((listener) => listener())
+    } finally {
+      if (profileRequest === controller) profileRequest = undefined
+      profilePromise = undefined
+    }
+  })()
+  return profilePromise
 }

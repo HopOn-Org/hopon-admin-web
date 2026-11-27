@@ -14,6 +14,8 @@ export async function mockKeycloak(
     holdLogin?: boolean
     claims?: Record<string, unknown>
     refreshedClaims?: Record<string, unknown>
+    profile?: Record<string, unknown>
+    profileStatus?: number
   } = {},
 ) {
   let nonce = ''
@@ -30,6 +32,34 @@ export async function mockKeycloak(
     'access-control-allow-credentials': 'true',
     'access-control-allow-headers': 'content-type',
   }
+  await page.route('http://localhost:5173/identity-api/**', async (route) => {
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({
+        status: 204,
+        headers: {
+          ...headers,
+          'access-control-allow-headers': 'authorization,accept',
+        },
+      })
+      return
+    }
+    await route.fulfill({
+      status: options.profileStatus ?? 200,
+      headers,
+      json: {
+        id: 'test-identity-user',
+        keycloak_user_id: 'test-admin-subject',
+        phone_number: null,
+        phone_verified_at: null,
+        first_name: 'Alex',
+        last_name: 'Morgan',
+        email: 'alex@example.com',
+        status: 'ACTIVE',
+        profile_photo_url: null,
+        ...options.profile,
+      },
+    })
+  })
   await page.route(`${authOrigin}/**`, async (route) => {
     const request = route.request()
     const url = new URL(request.url())

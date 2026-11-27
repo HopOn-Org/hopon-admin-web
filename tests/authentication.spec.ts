@@ -1,13 +1,82 @@
 import { test, expect } from '@playwright/test'
 import { mockKeycloak, authOrigin } from './keycloak-mock'
 
+const profileUrl = 'http://localhost:5173/identity-api/api/v1/users/me'
+
+test('profile request uses the current Bearer token and displays API data instead of token profile', async ({
+  page,
+}) => {
+  await mockKeycloak(page, {
+    profile: {
+      first_name: 'Identity',
+      last_name: 'Administrator',
+      email: 'identity@example.com',
+      phone_number: '+94 77 1234567',
+    },
+  })
+  const requestPromise = page.waitForRequest(
+    (request) => request.url() === profileUrl && request.method() === 'GET',
+  )
+  await page.goto('/settings')
+  const request = await requestPromise
+  expect(request.headers().authorization).toMatch(/^Bearer .+\.test-signature$/)
+  expect(request.headers().accept).toBe('application/json')
+  await expect(page.getByRole('textbox', { name: 'Full name' })).toHaveValue(
+    'Identity Administrator',
+  )
+  await expect(
+    page.getByRole('textbox', { name: 'Email address' }),
+  ).toHaveValue('identity@example.com')
+  await expect(page.getByText('+94 77 1234567', { exact: true })).toBeVisible()
+})
+
+test('profile failure shows retry without falling back to token identity', async ({
+  page,
+}) => {
+  await mockKeycloak(page, { profileStatus: 503 })
+  await page.goto('/dashboard')
+  await expect(
+    page.getByRole('heading', { name: 'Unable to load your profile' }),
+  ).toBeVisible()
+  await expect(page.getByRole('navigation')).toHaveCount(0)
+  await expect(
+    page.getByRole('button', { name: 'Retry profile' }),
+  ).toBeVisible()
+})
+
+test('profile 401 expires the session and 403 denies access', async ({
+  page,
+}) => {
+  await mockKeycloak(page, { profileStatus: 401 })
+  await page.goto('/dashboard')
+  await expect(
+    page.getByRole('heading', { name: 'Your session has ended' }),
+  ).toBeVisible()
+  await mockKeycloak(page, { profileStatus: 403 })
+  await page.goto('/dashboard')
+  await expect(
+    page.getByRole('heading', { name: 'Access denied' }),
+  ).toBeVisible()
+})
+
+test('profile for a different Keycloak subject is rejected', async ({
+  page,
+}) => {
+  await mockKeycloak(page, { profile: { keycloak_user_id: 'another-user' } })
+  await page.goto('/dashboard')
+  await expect(
+    page.getByRole('heading', { name: 'Unable to load your profile' }),
+  ).toBeVisible()
+  await expect(page.getByRole('navigation')).toHaveCount(0)
+})
+
 test('SUPER_ADMIN alone can access the workspace and retain access after refresh', async ({
   page,
 }) => {
   await page.clock.install()
   const requests = await mockKeycloak(page, {
     roles: ['SUPER_ADMIN'],
-    expiresIn: 20,
+    expiresIn: 35,
   })
   await page.goto('/settings')
   await expect(
@@ -25,7 +94,7 @@ test('changing ADMIN to SUPER_ADMIN during refresh retains access', async ({
   await page.clock.install()
   await mockKeycloak(page, {
     roles: ['ADMIN'],
-    expiresIn: 20,
+    expiresIn: 35,
     refreshedRoles: ['SUPER_ADMIN'],
   })
   await page.goto('/dashboard')
@@ -39,12 +108,17 @@ test('changing ADMIN to SUPER_ADMIN during refresh retains access', async ({
     .toBe(0)
 })
 
-test('uses access-token identity and session claims and updates them after refresh', async ({
+test('uses Identity Service profile and keeps token session claims updated after refresh', async ({
   page,
 }) => {
   await page.clock.install()
   await mockKeycloak(page, {
-    expiresIn: 20,
+    expiresIn: 35,
+    profile: {
+      first_name: 'Sample',
+      last_name: 'Administrator',
+      email: 'sample@example.com',
+    },
     claims: {
       name: 'Sample Administrator',
       given_name: 'Sample',
@@ -79,7 +153,7 @@ test('uses access-token identity and session claims and updates them after refre
   await expect(page.getByText('test-token-id', { exact: true })).toBeVisible()
   await page.clock.fastForward(11_000)
   await expect(page.getByRole('textbox', { name: 'Full name' })).toHaveValue(
-    'Updated Administrator',
+    'Sample Administrator',
   )
   await expect(
     page.getByText('Email status: Verified', { exact: true }),
@@ -145,7 +219,7 @@ test('non-admin is denied even on deep links and can end the Keycloak session', 
 
 test('refreshes a short-lived session before expiry', async ({ page }) => {
   await page.clock.install()
-  const requests = await mockKeycloak(page, { expiresIn: 20 })
+  const requests = await mockKeycloak(page, { expiresIn: 35 })
   await page.goto('/dashboard')
   await expect(page.getByRole('heading', { level: 1 })).toContainText(
     'Good afternoon',
@@ -160,7 +234,7 @@ test('failed refresh locks the app and requires sign-in again', async ({
 }) => {
   await page.clock.install()
   const requests = await mockKeycloak(page, {
-    expiresIn: 20,
+    expiresIn: 35,
     failRefresh: true,
   })
   await page.goto('/dashboard')
@@ -178,7 +252,7 @@ test('ADMIN role removal during refresh immediately hides protected screens', as
   page,
 }) => {
   await page.clock.install()
-  await mockKeycloak(page, { expiresIn: 20, refreshedRoles: ['PASSENGER'] })
+  await mockKeycloak(page, { expiresIn: 35, refreshedRoles: ['PASSENGER'] })
   await page.goto('/dashboard')
   await expect(page.getByRole('navigation')).toBeVisible()
   await page.clock.fastForward(11_000)

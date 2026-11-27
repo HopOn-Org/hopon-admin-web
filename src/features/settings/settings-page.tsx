@@ -61,11 +61,15 @@ export function SettingsPage() {
           <Card>
             <CardHeading
               title="Profile details"
-              description="Identity from your current Keycloak access token"
+              description="Your current account details from the Identity Service"
             />
             <div className="space-y-5 px-5 pb-6">
               <div className="flex items-center gap-4 border-b border-slate-100 pb-5">
-                <Avatar name={user?.name || 'Administrator'} size="lg" />
+                <Avatar
+                  name={user?.name || 'Administrator'}
+                  src={user?.photoUrl}
+                  size="lg"
+                />
                 <div>
                   <p className="text-sm font-semibold">
                     {user?.name || 'Administrator'}
@@ -113,9 +117,9 @@ export function SettingsPage() {
                 </select>
               </label>
               <p className="text-sm text-slate-400">
-                Name and email are managed in Keycloak and cannot be edited
-                here. Your time zone preference is saved locally. Operational
-                timestamps use Asia/Colombo for consistency.
+                Name and email come from the Identity Service and cannot be
+                edited here. Your time zone preference is saved locally.
+                Operational timestamps use Asia/Colombo for consistency.
               </p>
             </div>
           </Card>
@@ -220,6 +224,28 @@ export function SettingsPage() {
           </Card>
           <Card className="p-5">
             <h2 className="text-base font-semibold">Authenticated session</h2>
+            <dl className="mt-3 space-y-3 text-sm">
+              <div>
+                <dt className="text-slate-500">Account ID</dt>
+                <dd className="mt-1 break-all">{user?.id || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">Account status</dt>
+                <dd className="mt-1">
+                  {user?.accountStatus || 'Not provided'}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">Phone number</dt>
+                <dd className="mt-1">{user?.phoneNumber || 'Not provided'}</dd>
+              </div>
+              <div>
+                <dt className="text-slate-500">Phone verification</dt>
+                <dd className="mt-1">
+                  {user?.phoneVerifiedAt ? 'Verified' : 'Not verified'}
+                </dd>
+              </div>
+            </dl>
             <p className="mt-2 text-sm text-slate-500">
               Email status: {user?.emailVerified ? 'Verified' : 'Unverified'}
             </p>

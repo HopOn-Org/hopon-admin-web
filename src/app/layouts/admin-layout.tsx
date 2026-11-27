@@ -144,13 +144,7 @@ export function AdminLayout() {
           onClick={() => setMobileOpen(false)}
           className="flex h-[88px] items-center gap-3 px-7"
         >
-          <span className="brand-mark">
-            <span />
-            <span />
-          </span>
-          <span className="text-[29px] font-extrabold tracking-[-1.6px]">
-            hopon<span className="text-emerald-600">.</span>
-          </span>
+          <img src="/logo.png" alt="HopOn" className="size-[76px] shrink-0 object-contain" />
           <span className="mt-1 rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-bold tracking-wider text-slate-500">
             ADMIN
           </span>
@@ -230,7 +224,11 @@ export function AdminLayout() {
           to="/settings"
           className="mx-4 mb-4 flex items-center gap-3 rounded-lg bg-slate-50 p-3"
         >
-          <Avatar name={user?.name || settings.name} size="sm" />
+          <Avatar
+            name={user?.name || settings.name}
+            src={user?.photoUrl}
+            size="sm"
+          />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold">
               {user?.name || settings.name}
@@ -331,7 +329,11 @@ export function AdminLayout() {
               )}
             </div>
             <Link to="/settings" aria-label="Account settings">
-              <Avatar name={user?.name || settings.name} size="sm" />
+              <Avatar
+                name={user?.name || settings.name}
+                src={user?.photoUrl}
+                size="sm"
+              />
             </Link>
           </div>
         </header>
